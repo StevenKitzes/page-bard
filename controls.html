@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        height: auto;
+        margin: 0px;
+        padding: 8px;
+        text-align: center;
+        width: 360px;
+      }
+      h1 {
+        margin-bottom: 4px;
+      }
+      img {
+        margin-right: 8px;
+      }
+      .control {
+        align-items: center;
+        border: 2px solid black;
+        display: flex;
+        flex-direction: row;
+        margin: 4px;
+        width: 100%;
+      }
+      .control:hover {
+        border: 2px solid orange;
+        cursor: pointer;
+      }
+      #controls {
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Page Song</h1>
+    <div id="controls">
+      <div id="play-major" class="control">
+        <img src="icons/play-button-48.png" /> Play page in major (C) scale
+      </div>
+      <div id="play-7" class="control">
+        <img src="icons/play-button-48.png" /> Play page in 7 (C7) scale
+      </div>
+      <div id="play-major-7" class="control">
+        <img src="icons/play-button-48.png" /> Play page in major 7 (CM7) scale
+      </div>
+      <div id="play-minor" class="control">
+        <img src="icons/play-button-48.png" /> Play page in minor (Cm) scale
+      </div>
+      <div id="play-minor-7" class="control">
+        <img src="icons/play-button-48.png" /> Play page in minor 7 (Cm7) scale
+      </div>
+      <div id="play-minor-major-7" class="control">
+        <img src="icons/play-button-48.png" /> Play page in minor major 7 (Cm^7) scale
+      </div>
+    </div>
+    <script src="controls.js"></script>
+  </body>
+</html>

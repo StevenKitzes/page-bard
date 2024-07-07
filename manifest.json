@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "Page Song",
+  "version": "0.1",
+
+  "description": "Interpret a web page's DOM as a song and play it.",
+
+  "permissions": ["activeTab"],
+
+  "browser_action": {
+    "default_icon": "icons/page-song-32.jpg",
+    "default_title": "Page Song",
+    "default_popup": "controls.html"
+  },
+
+  "icons": {
+    "32": "icons/page-song-32.jpg",
+    "48": "icons/page-song-48.jpg"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["page-song.js"]
+    }
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "page-song@example.com"
+    }
+  },
+
+  "web_accessible_resources": [
+    "icons/play-button-48.png"
+  ]
+}
