@@ -112,16 +112,11 @@ function getScale(scaleName) {
     console.log('got message', message);
 
     if (message.command === "songify") {
-      if (window.pageSongRan) {
-        console.log('page song was already run . . . not running again');
-        alert("You already started playing this page as a song.  Refresh the page to start over!");
-        return;
-      }
       console.log('Setting up Page Song!');
-      window.songifyListenerAdded = true;
 
       console.log('command was', message.command);
       console.log('with image:', message.image);
+      console.log('with stopImage:', message.stopImage);
       console.log('with scale:', message.scale);
 
       if (!message.image) {
@@ -131,31 +126,52 @@ function getScale(scaleName) {
       if (!message.scale) {
         console.log('scale not included in message :( canceling');
         return;
-      }  
+      }
 
       const playButton = document.createElement('img');
       playButton.src = message.image;
       playButton.style.cursor = "pointer";
       playButton.style.position = "fixed";
-      playButton.style.right = "0px";
-      playButton.style.top = "0px";
+      playButton.style.right = "8px";
+      playButton.style.top = "8px";
       playButton.style.zIndex = "999";
       document.body.appendChild(playButton);
 
       playButton.addEventListener('click', e => {
-        if (window.pageSongPlayed) {
-          console.log('page song already played . . . not playing again');
-          alert('You already played this page as a song.  Refresh the page to try again!');
-          return;
-        }
+        if (window.pageSongPlayed) return;
         window.pageSongPlayed = true;
+
+        playButton.src = message.stopImage;
 
         const notes = getScale(message.scale);
         console.log('got',notes,'from getScale');
-
+        
         const synth = new window.Tone.PolySynth(Tone.Synth).toDestination();
         const now = window.Tone.now();
         console.log('initialized ToneJS PolySynth');
+
+        playButton.addEventListener('click', e => {
+          synth.dispose();
+          playButton.style.display = "none";
+
+          const pageSongHint = document.createElement('div');
+          pageSongHint.style.cursor = "pointer";
+          pageSongHint.style.position = "fixed";
+          pageSongHint.style.right = "8px";
+          pageSongHint.style.top = "8px";
+          pageSongHint.style.zIndex = "999";
+          pageSongHint.style.backgroundColor = "orange";
+          pageSongHint.style.borderRadius = "8px";
+          pageSongHint.style.border = "3px solid black";
+          pageSongHint.style.padding = "8px";
+          pageSongHint.style.color = "black";
+          pageSongHint.style.textAlign = "center";
+          pageSongHint.innerHTML = "<strong>Done!  Refresh the page to play again.</strong><br />(Click to close this message.)";
+          document.body.appendChild(pageSongHint);
+          pageSongHint.addEventListener('click', e => {
+            pageSongHint.style.display = "none";
+          });
+        });
 
         // get all document nodes
         const nodes = document.querySelectorAll('*');
@@ -168,13 +184,16 @@ function getScale(scaleName) {
           if (t % 2 == 0) note = "C4";
           else {
             const node = nodes[i];
+            if (!node) console.log('Page Song ERROR: no node at index', i, '?!', node?.toString());
             const tagName = node?.tagName || 'none';
-            const innerTextLength = node?.innerText?.length || 0;
+            let textLength = node?.innerText?.length || 0;
+            if (textLength === 0) textLength = node?.outerHTML.length;
             for (let c = 0; c < tagName.length; c++) {
               nodeValue += tagName.charCodeAt(c);
             }
-            nodeValue += innerTextLength;
+            nodeValue += textLength;
             note = notes[nodeValue % notes.length];
+            console.log('note', note);
           }
           if (nodeValue % 5 === 0) {
             t += 0.25;

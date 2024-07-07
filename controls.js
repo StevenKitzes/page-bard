@@ -9,6 +9,7 @@ function songify(tabs) {
   browser.tabs.sendMessage(tabs[0].id, {
     command: "songify",
     image: browser.runtime.getURL("icons/play-button-48.png"),
+    stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
     scale: scale
   })
 }
