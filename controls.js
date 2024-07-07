@@ -17,8 +17,12 @@ function songify(tabs) {
 function reportError(e) {
   alert('error trying to songify page! ' + e.toString());
 }
+function hideMenu() {
+  document.getElementById('page-song-body').style.display = "none";
+}
 
 document.getElementById('play-major').addEventListener('click', e => {
+  hideMenu();
   scale = "major";
   browser.tabs
     .query({ active: true, currentWindow: true })
@@ -26,6 +30,7 @@ document.getElementById('play-major').addEventListener('click', e => {
     .catch(reportError);
 })
 document.getElementById('play-7').addEventListener('click', e => {
+  hideMenu();
   scale = "7";
   browser.tabs
     .query({ active: true, currentWindow: true })
@@ -33,6 +38,7 @@ document.getElementById('play-7').addEventListener('click', e => {
     .catch(reportError);
 })
 document.getElementById('play-major-7').addEventListener('click', e => {
+  hideMenu();
   scale = "major-7";
   browser.tabs
     .query({ active: true, currentWindow: true })
@@ -40,6 +46,7 @@ document.getElementById('play-major-7').addEventListener('click', e => {
     .catch(reportError);
 })
 document.getElementById('play-minor').addEventListener('click', e => {
+  hideMenu();
   scale = "minor";
   browser.tabs
     .query({ active: true, currentWindow: true })
@@ -47,6 +54,7 @@ document.getElementById('play-minor').addEventListener('click', e => {
     .catch(reportError);
 })
 document.getElementById('play-minor-7').addEventListener('click', e => {
+  hideMenu();
   scale = "minor-7";
   browser.tabs
     .query({ active: true, currentWindow: true })
@@ -54,6 +62,7 @@ document.getElementById('play-minor-7').addEventListener('click', e => {
     .catch(reportError);
 })
 document.getElementById('play-minor-major-7').addEventListener('click', e => {
+  hideMenu();
   scale = "minor-major-7";
   browser.tabs
     .query({ active: true, currentWindow: true })

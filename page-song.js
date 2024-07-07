@@ -6,6 +6,8 @@ console.log('ToneJS loaded');
 window.Tone = Tone;
 console.log('Tone ref added to window obj');
 
+const allNotes = [];
+
 // should return an array of viable notes suitable for use with ToneJS
 function getScale(scaleName) {
   if (scaleName === 'major') {
@@ -134,7 +136,7 @@ function getScale(scaleName) {
       playButton.style.position = "fixed";
       playButton.style.right = "8px";
       playButton.style.top = "8px";
-      playButton.style.zIndex = "999";
+      playButton.style.zIndex = "9999";
       document.body.appendChild(playButton);
 
       playButton.addEventListener('click', e => {
@@ -159,7 +161,7 @@ function getScale(scaleName) {
           pageSongHint.style.position = "fixed";
           pageSongHint.style.right = "8px";
           pageSongHint.style.top = "8px";
-          pageSongHint.style.zIndex = "999";
+          pageSongHint.style.zIndex = "9999";
           pageSongHint.style.backgroundColor = "orange";
           pageSongHint.style.borderRadius = "8px";
           pageSongHint.style.border = "3px solid black";
