@@ -46,116 +46,58 @@ const allNotes = [
 ];
 
 // should return an array of viable notes suitable for use with ToneJS
-function getScale(scaleName) {
-  const possibleScales = [
-    'major',
-    '6',
-    '7',
-    'major-7',
-    'minor',
-    'minor-7'
+function getScale(modeName) {
+  const possibleModes = [
+    'ionian',
+    'dorian',
+    'phrygian',
+    'lydian',
+    'mixolydian',
+    'aeolian',
+    'locrian'
   ]
-  let scale = scaleName;
-  if (scaleName === 'domain') {
+  let mode = modeName;
+  if (modeName === 'domain') {
     let domainValue = 0;
     for (let i = 0; i < document.location.hostname.length; i++) {
       domainValue += document.location.hostname.charCodeAt(i);
     }
-    scale = possibleScales[domainValue % possibleScales.length];
-    alert(`${document.location.hostname} feels to me like it should be played in ${scale}.  Let's go!`);
+    mode = possibleModes[domainValue % possibleModes.length];
+    alert(`${document.location.hostname} feels to me like it should be played in the ${mode} mode.  Let's go!`);
   }
-  if (scale === 'major') {
-    return [
-      0,
-      4,
-      7,
-      12,
-      16,
-      19,
-      24,
-      28,
-      31,
-    ];
+  const scale = [];
+  switch (mode) {
+    case 'ionian':
+      scale.push(0,2,4,5,7,9,11);
+      break;
+    case 'dorian':
+      scale.push(0,2,3,5,7,9,10);
+      break;
+    case 'phrygian':
+      scale.push(0,1,3,5,7,8,10);
+      break;
+    case 'lydian':
+      scale.push(0,2,4,6,7,9,11);
+      break;
+    case 'mixolydian':
+      scale.push(0,2,4,5,7,9,10);
+      break;
+    case 'aeolian':
+      scale.push(0,2,3,5,7,8,10);
+      break;
+    case 'locrian':
+      scale.push(0,1,3,5,6,8,10);
+      break;
   }
-  if (scale === '6') {
-    return [
-      0,
-      4,
-      7,
-      9,
-      12,
-      16,
-      19,
-      21,
-      24,
-      28,
-      31,
-      33,
-    ];
+  for (let i = 0; i < 7; i++) {
+    scale.push(scale[i] + 12);
   }
-  if (scale === '7') {
-    return [
-      0,
-      4,
-      7,
-      10,
-      12,
-      16,
-      19,
-      22,
-      24,
-      28,
-      31,
-      34,
-    ];
+  for (let i = 0; i < 7; i++) {
+    scale.push(scale[i] + 24);
   }
-  if (scale === 'major-7') {
-    return [
-      0,
-      4,
-      7,
-      11,
-      12,
-      16,
-      19,
-      23,
-      24,
-      28,
-      31,
-      35,
-    ];
-  }
-  if (scale === 'minor') {
-    return [
-      0,
-      3,
-      7,
-      12,
-      15,
-      19,
-      24,
-      27,
-      31,
-    ];
-  }
-  if (scale === 'minor-7') {
-    return [
-      0,
-      3,
-      7,
-      10,
-      12,
-      15,
-      19,
-      22,
-      24,
-      27,
-      31,
-      34,
-    ];
-  }
+  return scale;
 }
-  
+
 (() => {
   if (window.songifyHasRun) {
     console.log('page song already ran . . . not running again')
@@ -163,18 +105,18 @@ function getScale(scaleName) {
   }
   console.log('setting up page song . . .')
   window.songifyHasRun = true;
-
+  
   browser.runtime.onMessage.addListener((message) => {
     console.log('got message', message);
-
+    
     if (message.command === "songify") {
       console.log('Setting up Page Song!');
-
+      
       console.log('command was', message.command);
       console.log('with image:', message.image);
       console.log('with stopImage:', message.stopImage);
       console.log('with scale:', message.scale);
-
+      
       if (!message.image) {
         console.log('image not included in message :( canceling');
         return;
@@ -183,39 +125,42 @@ function getScale(scaleName) {
         console.log('scale not included in message :( canceling');
         return;
       }
-
+      
       const playButton = document.createElement('img');
       playButton.src = message.image;
       playButton.style.cursor = "pointer";
       playButton.style.position = "fixed";
       playButton.style.right = "8px";
       playButton.style.top = "8px";
-      playButton.style.zIndex = "9999";
+      playButton.style.zIndex = "2147483647";
       document.body.appendChild(playButton);
-
+      
       playButton.addEventListener('click', e => {
         if (window.pageSongPlayed) return;
         window.pageSongPlayed = true;
-
+        
         playButton.src = message.stopImage;
-
-        const notes = getScale(message.scale);
-        console.log('got',notes,'from getScale');
+        
+        const scaleNotesAsAllNotesIndices = getScale(message.scale);
+        const chordTones = [0, 2, 4, 6, 7, 9, 11, 13, 14, 16, 18, 20];
+        console.log('got',scaleNotesAsAllNotesIndices,'from getScale');
+        scaleNotesAsAllNotesIndices.forEach((t) => console.log('scale note', t, allNotes[t]));
+        chordTones.forEach((t, i) => console.log('chord tone', t, allNotes[scaleNotesAsAllNotesIndices[t]]));
         
         const synth = new window.Tone.PolySynth(Tone.Synth).toDestination();
         const now = window.Tone.now();
         console.log('initialized ToneJS PolySynth');
-
+        
         playButton.addEventListener('click', e => {
           synth.dispose();
           playButton.style.display = "none";
-
+          
           const pageSongHint = document.createElement('div');
           pageSongHint.style.cursor = "pointer";
           pageSongHint.style.position = "fixed";
           pageSongHint.style.right = "8px";
           pageSongHint.style.top = "8px";
-          pageSongHint.style.zIndex = "9999";
+          pageSongHint.style.zIndex = "2147483647";
           pageSongHint.style.backgroundColor = "orange";
           pageSongHint.style.borderRadius = "8px";
           pageSongHint.style.border = "3px solid black";
@@ -228,13 +173,13 @@ function getScale(scaleName) {
             pageSongHint.style.display = "none";
           });
         });
-
+        
         // get all document nodes
         const nodes = document.querySelectorAll('*');
-        const songNotes = [];
+        const composition = [];
         let i = -1;
         let t = -0.25;
-
+        
         while (++i < nodes.length) {
           // janky little algo to determine arbitrary (but deterministic) numerical value of an HTML Node
           let nodeValue = 0;
@@ -247,40 +192,174 @@ function getScale(scaleName) {
             nodeValue += tagName.charCodeAt(c);
           }
           nodeValue += textLength;
-
-          // per some arbitrary rule, don't play a note at this point in the song
-          if (nodeValue % 5 === 0) {
-            songNotes.push("none");
-            continue;
+          
+          // otherwise push this note to songNotes
+          composition.push(nodeValue);
+        }
+        
+        // replace excessive repeats with a warble
+        for (let j = 0; j < composition.length - 3; j++) {
+          if (
+            composition[j] % scaleNotesAsAllNotesIndices.length === composition[j+1] % scaleNotesAsAllNotesIndices.length &&
+            composition[j+1] % scaleNotesAsAllNotesIndices.length === composition[j+2] % scaleNotesAsAllNotesIndices.length &&
+            composition[j+2] % scaleNotesAsAllNotesIndices.length === composition[j+3] % scaleNotesAsAllNotesIndices.length
+          ) {
+            composition[j+1] += Math.random() > 0.5 ? 1 : -1;
           }
 
-          // otherwise push this note to songNotes
-          songNotes.push(allNotes[notes[nodeValue % notes.length]]);
+          while (
+            (composition[j] % scaleNotesAsAllNotesIndices.length) -
+            (composition[j+1] % scaleNotesAsAllNotesIndices.length) >
+            8
+          ) composition[j+1] += 8;
+          while (
+            (composition[j+1] % scaleNotesAsAllNotesIndices.length) -
+            (composition[j] % scaleNotesAsAllNotesIndices.length) >
+            8
+          ) composition[j] += 8;
         }
-
+        
         // create tones for all the notes in songNotes
-        for (let j = 0; j < songNotes.length; j++) {
+        for (let j = 0; j < composition.length; j++) {
           // always increment time
           t += 0.25;
-
-          // skip if this note is "none"
-          if (songNotes[j] === 'none') continue;
-
+          
+          // skip based on arbitrary rule
+          if (composition[j] % 5 === 0) {
+            console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
+            continue;
+          }
+          
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
+            console.log(t, 'second-measure end using C4');
             synth.triggerAttack("C4", now + t);
-            synth.triggerRelease("C4", now + t + (Math.random() * 2));
+            synth.triggerRelease("C4", now + t + Math.max((Math.random() * 2), 0.25));
             continue;
           }
           // if we are at the end of a measure, must play a chord tone
           if (t % 1 === 0) {
-            synth.triggerAttack(songNotes[j], now + t);
-            synth.triggerRelease(songNotes[j], now + t + (Math.random() * 2));
+            const tone = Math.floor(Math.random() * chordTones.length);
+            const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
+            console.log(t, 'measure end using chord tone', toneName);
+            synth.triggerAttack(toneName, now + t);
+            synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
             continue;
           }
 
-          synth.triggerAttack(songNotes[j], now + t);
-          synth.triggerRelease(songNotes[j], now + t + (Math.random() * 2));
+          // warble
+          if (composition[j] % 8 === 0) {
+            const shift = Math.random() > 0.5 ? 1 : -1;
+            const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
+            const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
+            console.log(t, 'warbling off', mainToneName);
+            synth.triggerAttack(mainToneName, now + t);
+            synth.triggerRelease(mainToneName, now + t + 0.125);
+            synth.triggerAttack(offToneName, now + t + 0.125);
+            synth.triggerRelease(offToneName, now + t + 0.25);
+            synth.triggerAttack(mainToneName, now + t + 0.25);
+            synth.triggerRelease(mainToneName, now + t + Math.max((Math.random() * 2), 0.25));
+            t += 0.25;
+            j++;
+            continue;
+          }
+          // scale run up
+          if (composition[j] % 8 === 1) {
+            const timeString = Math.round(t).toString();
+            let runNotes = Number(timeString.charAt(timeString.length - 1));
+            if (runNotes < 3) runNotes = 3;
+            if (runNotes > 5) runNotes = 5;
+            const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
+            console.log(t, 'scale run up off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
+
+            for (let k = 0; k < runNotes; k++) {
+              synth.triggerAttack(
+                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
+                now + t + (k * 0.25)
+              );
+              synth.triggerRelease(
+                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
+                now + t + (k * 0.25) + 0.25
+              );
+            }
+            t += (runNotes * 0.25);
+            j += runNotes;
+            continue;
+          }
+          // scale run down
+          if (composition[j] % 8 === 2) {
+            const timeString = Math.round(t).toString();
+            let runNotes = Number(timeString.charAt(timeString.length - 1));
+            if (runNotes < 3) runNotes = 3;
+            if (runNotes > 5) runNotes = 5;
+            const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
+            console.log(t, 'scale run down off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
+
+            for (let k = 0; k < runNotes; k++) {
+              synth.triggerAttack(
+                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
+                now + t + (k * 0.25)
+              );
+              synth.triggerRelease(
+                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
+                now + t + (k * 0.25) + 0.25
+              );
+            }
+            t += (runNotes * 0.25);
+            j += runNotes;
+            continue;
+          }
+          // arpeggiate up
+          if (composition[j] % 8 === 3) {
+            const timeString = Math.round(t).toString();
+            let runNotes = Number(timeString.charAt(timeString.length - 1));
+            if (runNotes < 3) runNotes = 3;
+            if (runNotes > 5) runNotes = 5;
+            const startingChordToneIndex = Math.floor(Math.random() * (chordTones.length / 2));
+            console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
+
+            for (let k = 0; k < runNotes; k++) {
+              synth.triggerAttack(
+                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
+                now + t + (k * 0.25)
+              );
+              synth.triggerRelease(
+                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
+                now + t + (k * 0.25) + 0.25
+              );
+            }
+            t += (runNotes * 0.25);
+            j += runNotes;
+            continue;
+          }
+          // arpeggiate down
+          if (composition[j] % 8 === 4) {
+            const timeString = Math.round(t).toString();
+            let runNotes = Number(timeString.charAt(timeString.length - 1));
+            if (runNotes < 3) runNotes = 3;
+            if (runNotes > 5) runNotes = 5;
+            const startingChordToneIndex = Math.floor((Math.random() * (chordTones.length / 2)) + chordTones.length / 2);
+            console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
+
+            for (let k = 0; k < runNotes; k++) {
+              synth.triggerAttack(
+                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
+                now + t + (k * 0.25)
+              );
+              synth.triggerRelease(
+                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
+                now + t + (k * 0.25) + 0.25
+              );
+            }
+            t += (runNotes * 0.25);
+            j += runNotes;
+            continue;
+          }
+          
+          const toneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
+          console.log(t, 'using songNotes note', toneName);
+          synth.triggerAttack(toneName, now + t);
+          synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
         }
 
         console.log('created song from', nodes.length, 'elements, song will play for about', nodes.length / 4, 'seconds');

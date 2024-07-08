@@ -29,57 +29,57 @@ document.getElementById('play-domain').addEventListener('click', e => {
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-major').addEventListener('click', e => {
+document.getElementById('play-ionian').addEventListener('click', e => {
   hideMenu();
-  scale = "major";
+  scale = "ionian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-6').addEventListener('click', e => {
+document.getElementById('play-dorian').addEventListener('click', e => {
   hideMenu();
-  scale = "6";
+  scale = "dorian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-7').addEventListener('click', e => {
+document.getElementById('play-phrygian').addEventListener('click', e => {
   hideMenu();
-  scale = "7";
+  scale = "phrygian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-major-7').addEventListener('click', e => {
+document.getElementById('play-lydian').addEventListener('click', e => {
   hideMenu();
-  scale = "major-7";
+  scale = "lydian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-minor').addEventListener('click', e => {
+document.getElementById('play-mixolydian').addEventListener('click', e => {
   hideMenu();
-  scale = "minor";
+  scale = "mixolydian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-minor-7').addEventListener('click', e => {
+document.getElementById('play-aeolian').addEventListener('click', e => {
   hideMenu();
-  scale = "minor-7";
+  scale = "aeolian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
 })
-document.getElementById('play-minor-major-7').addEventListener('click', e => {
+document.getElementById('play-locrian').addEventListener('click', e => {
   hideMenu();
-  scale = "minor-major-7";
+  scale = "locrian";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
