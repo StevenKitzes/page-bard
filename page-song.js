@@ -6,98 +6,152 @@ console.log('ToneJS loaded');
 window.Tone = Tone;
 console.log('Tone ref added to window obj');
 
-const allNotes = [];
+const allNotes = [
+  "C3",   // 0
+  "C#3",
+  "D3",
+  "D#3",
+  "E3",
+  "F3",   // 5
+  "F#3",
+  "G3",
+  "G#3",
+  "A3",
+  "A#3",  // 10
+  "B3",
+  "C4",
+  "C#4",
+  "D4",
+  "D#4",  // 15
+  "E4",
+  "F4",
+  "F#4",
+  "G4",
+  "G#4",  // 20
+  "A4",
+  "A#4",
+  "B4",
+  "C5",
+  "C#5",  // 25
+  "D5",
+  "D#5",
+  "E5",
+  "F5",
+  "F#5",  // 30
+  "G5",
+  "G#5",
+  "A5",
+  "A#5",
+  "B5",   // 35
+];
 
 // should return an array of viable notes suitable for use with ToneJS
 function getScale(scaleName) {
-  if (scaleName === 'major') {
+  const possibleScales = [
+    'major',
+    '6',
+    '7',
+    'major-7',
+    'minor',
+    'minor-7'
+  ]
+  let scale = scaleName;
+  if (scaleName === 'domain') {
+    let domainValue = 0;
+    for (let i = 0; i < document.location.hostname.length; i++) {
+      domainValue += document.location.hostname.charCodeAt(i);
+    }
+    scale = possibleScales[domainValue % possibleScales.length];
+    alert(`${document.location.hostname} feels to me like it should be played in ${scale}.  Let's go!`);
+  }
+  if (scale === 'major') {
     return [
-      "C3",
-      "E3",
-      "G3",
-      "C4",
-      "E4",
-      "G4",
-      "C5",
-      "E5",
-      "G5"
+      0,
+      4,
+      7,
+      12,
+      16,
+      19,
+      24,
+      28,
+      31,
     ];
   }
-  if (scaleName === '7') {
+  if (scale === '6') {
     return [
-      "C3",
-      "E3",
-      "G3",
-      "Bb3",
-      "C4",
-      "E4",
-      "G4",
-      "Bb4",
-      "C5",
-      "E5",
-      "G5",
-      "Bb5"
+      0,
+      4,
+      7,
+      9,
+      12,
+      16,
+      19,
+      21,
+      24,
+      28,
+      31,
+      33,
     ];
   }
-  if (scaleName === 'major-7') {
+  if (scale === '7') {
     return [
-      "C3",
-      "E3",
-      "G3",
-      "B3",
-      "C4",
-      "E4",
-      "G4",
-      "B4",
-      "C5",
-      "E5",
-      "G5",
-      "B5"
+      0,
+      4,
+      7,
+      10,
+      12,
+      16,
+      19,
+      22,
+      24,
+      28,
+      31,
+      34,
     ];
   }
-  if (scaleName === 'minor') {
+  if (scale === 'major-7') {
     return [
-      "C3",
-      "Eb3",
-      "G3",
-      "C4",
-      "Eb4",
-      "G4",
-      "C5",
-      "Eb5",
-      "G5"
+      0,
+      4,
+      7,
+      11,
+      12,
+      16,
+      19,
+      23,
+      24,
+      28,
+      31,
+      35,
     ];
   }
-  if (scaleName === 'minor-7') {
+  if (scale === 'minor') {
     return [
-      "C3",
-      "Eb3",
-      "G3",
-      "Bb3",
-      "C4",
-      "Eb4",
-      "G4",
-      "Bb4",
-      "C5",
-      "Eb5",
-      "G5",
-      "Bb5"
+      0,
+      3,
+      7,
+      12,
+      15,
+      19,
+      24,
+      27,
+      31,
     ];
   }
-  if (scaleName === 'minor-major-7') {
+  if (scale === 'minor-7') {
     return [
-      "C3",
-      "Eb3",
-      "G3",
-      "B3",
-      "C4",
-      "Eb4",
-      "G4",
-      "B4",
-      "C5",
-      "Eb5",
-      "G5",
-      "B5"
+      0,
+      3,
+      7,
+      10,
+      12,
+      15,
+      19,
+      22,
+      24,
+      27,
+      31,
+      34,
     ];
   }
 }
@@ -177,36 +231,59 @@ function getScale(scaleName) {
 
         // get all document nodes
         const nodes = document.querySelectorAll('*');
-        let i = 0;
-        let t = 0;
+        const songNotes = [];
+        let i = -1;
+        let t = -0.25;
 
-        while (i++ < nodes.length) {
-          let note;
+        while (++i < nodes.length) {
+          // janky little algo to determine arbitrary (but deterministic) numerical value of an HTML Node
           let nodeValue = 0;
-          if (t % 2 == 0) note = "C4";
-          else {
-            const node = nodes[i];
-            if (!node) console.log('Page Song ERROR: no node at index', i, '?!', node?.toString());
-            const tagName = node?.tagName || 'none';
-            let textLength = node?.innerText?.length || 0;
-            if (textLength === 0) textLength = node?.outerHTML.length;
-            for (let c = 0; c < tagName.length; c++) {
-              nodeValue += tagName.charCodeAt(c);
-            }
-            nodeValue += textLength;
-            note = notes[nodeValue % notes.length];
-            console.log('note', note);
+          const node = nodes[i];
+          if (!node) console.log('Page Song ERROR: no node at index', i, '?!', node?.toString());
+          const tagName = node?.tagName || 'none';
+          let textLength = node?.innerText?.length || 0;
+          if (textLength === 0) textLength = node?.outerHTML.length;
+          for (let c = 0; c < tagName.length; c++) {
+            nodeValue += tagName.charCodeAt(c);
           }
+          nodeValue += textLength;
+
+          // per some arbitrary rule, don't play a note at this point in the song
           if (nodeValue % 5 === 0) {
-            t += 0.25;
+            songNotes.push("none");
             continue;
           }
-          synth.triggerAttack(note, now + t);
-          synth.triggerRelease(note, now + t + (Math.random() * 2));
-          t += 0.25;
+
+          // otherwise push this note to songNotes
+          songNotes.push(allNotes[notes[nodeValue % notes.length]]);
         }
 
-        console.log('created song');
+        // create tones for all the notes in songNotes
+        for (let j = 0; j < songNotes.length; j++) {
+          // always increment time
+          t += 0.25;
+
+          // skip if this note is "none"
+          if (songNotes[j] === 'none') continue;
+
+          // if we are at the end of every other measure, must play root tone (my arbitrary decision)
+          if (t % 2 === 0) {
+            synth.triggerAttack("C4", now + t);
+            synth.triggerRelease("C4", now + t + (Math.random() * 2));
+            continue;
+          }
+          // if we are at the end of a measure, must play a chord tone
+          if (t % 1 === 0) {
+            synth.triggerAttack(songNotes[j], now + t);
+            synth.triggerRelease(songNotes[j], now + t + (Math.random() * 2));
+            continue;
+          }
+
+          synth.triggerAttack(songNotes[j], now + t);
+          synth.triggerRelease(songNotes[j], now + t + (Math.random() * 2));
+        }
+
+        console.log('created song from', nodes.length, 'elements, song will play for about', nodes.length / 4, 'seconds');
       });
 
       console.log('songify done!')

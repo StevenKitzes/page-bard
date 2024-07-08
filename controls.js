@@ -21,9 +21,25 @@ function hideMenu() {
   document.getElementById('page-song-body').style.display = "none";
 }
 
+document.getElementById('play-domain').addEventListener('click', e => {
+  hideMenu();
+  scale = "domain";
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(songify)
+    .catch(reportError);
+})
 document.getElementById('play-major').addEventListener('click', e => {
   hideMenu();
   scale = "major";
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(songify)
+    .catch(reportError);
+})
+document.getElementById('play-6').addEventListener('click', e => {
+  hideMenu();
+  scale = "6";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
