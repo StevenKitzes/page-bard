@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Page Song",
+  "name": "Page Bard",
   "version": "0.1",
 
   "description": "Interpret a web page's DOM as a song and play it.",
@@ -9,7 +9,7 @@
 
   "browser_action": {
     "default_icon": "icons/page-song-32.jpg",
-    "default_title": "Page Song",
+    "default_title": "Page Bard",
     "default_popup": "controls.html"
   },
 
@@ -21,13 +21,13 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["page-song.js"]
+      "js": ["page-bard.js"]
     }
   ],
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "page-song@example.com"
+      "id": "page-bard@example.com"
     }
   },
 

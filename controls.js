@@ -18,7 +18,7 @@ function reportError(e) {
   alert('error trying to songify page! ' + e.toString());
 }
 function hideMenu() {
-  document.getElementById('page-song-body').style.display = "none";
+  document.getElementById('page-bard-body').style.display = "none";
 }
 
 document.getElementById('play-domain').addEventListener('click', e => {

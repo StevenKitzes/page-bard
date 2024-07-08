@@ -99,18 +99,18 @@ function getScale(modeName) {
 }
 
 (() => {
-  if (window.songifyHasRun) {
-    console.log('page song already ran . . . not running again')
+  if (window.pageBardInitialized) {
+    console.log('page bard already initialized . . . not initializing again')
     return;
   }
-  console.log('setting up page song . . .')
-  window.songifyHasRun = true;
+  console.log('initializing up page bard . . .')
+  window.pageBardInitialized = true;
   
   browser.runtime.onMessage.addListener((message) => {
     console.log('got message', message);
     
     if (message.command === "songify") {
-      console.log('Setting up Page Song!');
+      console.log('Setting up Page Bard!');
       
       console.log('command was', message.command);
       console.log('with image:', message.image);
@@ -136,8 +136,8 @@ function getScale(modeName) {
       document.body.appendChild(playButton);
       
       playButton.addEventListener('click', e => {
-        if (window.pageSongPlayed) return;
-        window.pageSongPlayed = true;
+        if (window.pageBardPlayed) return;
+        window.pageBardPlayed = true;
         
         playButton.src = message.stopImage;
         
@@ -152,13 +152,11 @@ function getScale(modeName) {
           attack += document.location.hostname.charCodeAt(i);
         }
         attack = (attack % 6) / 10 + 0.5;
-        console.log('using attack', attack, 'from', document.location.hostname);
         let decay = 0;
         for (let i = 0; i < document.location.href.length; i++) {
           decay += document.location.href.charCodeAt(i);
         }
         decay = (decay % 6) / 10 + 0.5;
-        console.log('using decay', decay, 'from', document.location.href);
         const oscillatorValue = document.location.pathname.length % 4;
         let oscillator;
         switch (oscillatorValue) {
@@ -167,45 +165,50 @@ function getScale(modeName) {
           case 2: oscillator = 'triangle'; break;
           case 3: oscillator = 'sine'; break;
         }
-        console.log('using oscillator', oscillator, 'from', document.location.pathname);
         const synth = new window.Tone.PolySynth(Tone.Synth, {
           'oscillator': {
             'type': oscillator
           },
           'envelope': {
-              'attack': attack,
-              'decay': decay
+            'attack': attack,
+            'decay': decay
           },
           'volume': -24
         }).toDestination();
         const now = window.Tone.now();
         console.log('initialized ToneJS PolySynth');
+        console.log('using attack', attack, 'from', document.location.hostname);
+        console.log('using decay', decay, 'from', document.location.href);
+        console.log('using oscillator', oscillator, 'from', document.location.pathname);
         
         playButton.addEventListener('click', e => {
           synth.dispose();
           playButton.style.display = "none";
           
-          const pageSongHint = document.createElement('div');
-          pageSongHint.style.cursor = "pointer";
-          pageSongHint.style.position = "fixed";
-          pageSongHint.style.right = "8px";
-          pageSongHint.style.top = "8px";
-          pageSongHint.style.zIndex = "2147483647";
-          pageSongHint.style.backgroundColor = "orange";
-          pageSongHint.style.borderRadius = "8px";
-          pageSongHint.style.border = "3px solid black";
-          pageSongHint.style.padding = "8px";
-          pageSongHint.style.color = "black";
-          pageSongHint.style.textAlign = "center";
-          pageSongHint.innerHTML = "<strong>Done!  Refresh the page to play again.</strong><br />(Click to close this message.)";
-          document.body.appendChild(pageSongHint);
-          pageSongHint.addEventListener('click', e => {
-            pageSongHint.style.display = "none";
+          const pageBardHint = document.createElement('div');
+          pageBardHint.style.cursor = "pointer";
+          pageBardHint.style.position = "fixed";
+          pageBardHint.style.right = "8px";
+          pageBardHint.style.top = "8px";
+          pageBardHint.style.zIndex = "2147483647";
+          pageBardHint.style.backgroundColor = "orange";
+          pageBardHint.style.borderRadius = "8px";
+          pageBardHint.style.border = "3px solid black";
+          pageBardHint.style.padding = "8px";
+          pageBardHint.style.color = "black";
+          pageBardHint.style.textAlign = "center";
+          pageBardHint.innerHTML = "<strong>Done!  Refresh the page to play again.</strong><br />(Click to close this message.)";
+          document.body.appendChild(pageBardHint);
+          pageBardHint.addEventListener('click', e => {
+            pageBardHint.style.display = "none";
           });
         });
         
         // get all document nodes
         const nodes = document.querySelectorAll('*');
+        const frequencyFactor = (document.getElementsByTagName('body')[0].outerHTML.length % 5) + 8;
+        console.log('calculated frequency factor', frequencyFactor);
+
         const composition = [];
         let i = -1;
         let t = -0.25;
@@ -214,7 +217,7 @@ function getScale(modeName) {
           // janky little algo to determine arbitrary (but deterministic) numerical value of an HTML Node
           let nodeValue = 0;
           const node = nodes[i];
-          if (!node) console.log('Page Song ERROR: no node at index', i, '?!', node?.toString());
+          if (!node) console.log('Page Bard ERROR: no node at index', i, '?!', node?.toString());
           const tagName = node?.tagName || 'none';
           let textLength = node?.innerText?.length || 0;
           if (textLength === 0) textLength = node?.outerHTML.length;
@@ -254,9 +257,10 @@ function getScale(modeName) {
           // always increment time
           t += 0.25;
           
-          // skip based on arbitrary rule
-          if (composition[j] % 5 === 0) {
+          // rest based on arbitrary rule
+          if (composition[j] % frequencyFactor === 0) {
             // console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
+            t += 0.25 * ((composition[j] % 8) + 1);
             continue;
           }
           
@@ -278,7 +282,7 @@ function getScale(modeName) {
           }
 
           // warble
-          if (composition[j] % 8 === 0) {
+          if (composition[j] % frequencyFactor === 1) {
             const shift = Math.random() > 0.5 ? 1 : -1;
             const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
             const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
@@ -294,7 +298,7 @@ function getScale(modeName) {
             continue;
           }
           // scale run up
-          if (composition[j] % 8 === 1) {
+          if (composition[j] % frequencyFactor === 2) {
             const timeString = Math.round(t).toString();
             let runNotes = Number(timeString.charAt(timeString.length - 1));
             if (runNotes < 3) runNotes = 3;
@@ -317,7 +321,7 @@ function getScale(modeName) {
             continue;
           }
           // scale run down
-          if (composition[j] % 8 === 2) {
+          if (composition[j] % frequencyFactor === 3) {
             const timeString = Math.round(t).toString();
             let runNotes = Number(timeString.charAt(timeString.length - 1));
             if (runNotes < 3) runNotes = 3;
@@ -340,7 +344,7 @@ function getScale(modeName) {
             continue;
           }
           // arpeggiate up
-          if (composition[j] % 8 === 3) {
+          if (composition[j] % frequencyFactor === 4) {
             const timeString = Math.round(t).toString();
             let runNotes = Number(timeString.charAt(timeString.length - 1));
             if (runNotes < 3) runNotes = 3;
@@ -363,7 +367,7 @@ function getScale(modeName) {
             continue;
           }
           // arpeggiate down
-          if (composition[j] % 8 === 4) {
+          if (composition[j] % frequencyFactor === 5) {
             const timeString = Math.round(t).toString();
             let runNotes = Number(timeString.charAt(timeString.length - 1));
             if (runNotes < 3) runNotes = 3;
