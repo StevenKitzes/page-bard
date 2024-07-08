@@ -144,10 +144,40 @@ function getScale(modeName) {
         const scaleNotesAsAllNotesIndices = getScale(message.scale);
         const chordTones = [0, 2, 4, 6, 7, 9, 11, 13, 14, 16, 18, 20];
         console.log('got',scaleNotesAsAllNotesIndices,'from getScale');
-        scaleNotesAsAllNotesIndices.forEach((t) => console.log('scale note', t, allNotes[t]));
-        chordTones.forEach((t, i) => console.log('chord tone', t, allNotes[scaleNotesAsAllNotesIndices[t]]));
+        // scaleNotesAsAllNotesIndices.forEach((t) => console.log('scale note', t, allNotes[t]));
+        // chordTones.forEach((t, i) => console.log('chord tone', t, allNotes[scaleNotesAsAllNotesIndices[t]]));
         
-        const synth = new window.Tone.PolySynth(Tone.Synth).toDestination();
+        let attack = 0;
+        for (let i = 0; i < document.location.hostname.length; i++) {
+          attack += document.location.hostname.charCodeAt(i);
+        }
+        attack = (attack % 6) / 10 + 0.5;
+        console.log('using attack', attack, 'from', document.location.hostname);
+        let decay = 0;
+        for (let i = 0; i < document.location.href.length; i++) {
+          decay += document.location.href.charCodeAt(i);
+        }
+        decay = (decay % 6) / 10 + 0.5;
+        console.log('using decay', decay, 'from', document.location.href);
+        const oscillatorValue = document.location.pathname.length % 4;
+        let oscillator;
+        switch (oscillatorValue) {
+          case 0: oscillator = 'sawtooth'; break;
+          case 1: oscillator = 'square'; break;
+          case 2: oscillator = 'triangle'; break;
+          case 3: oscillator = 'sine'; break;
+        }
+        console.log('using oscillator', oscillator, 'from', document.location.pathname);
+        const synth = new window.Tone.PolySynth(Tone.Synth, {
+          'oscillator': {
+            'type': oscillator
+          },
+          'envelope': {
+              'attack': attack,
+              'decay': decay
+          },
+          'volume': -24
+        }).toDestination();
         const now = window.Tone.now();
         console.log('initialized ToneJS PolySynth');
         
@@ -226,13 +256,13 @@ function getScale(modeName) {
           
           // skip based on arbitrary rule
           if (composition[j] % 5 === 0) {
-            console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
+            // console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
             continue;
           }
           
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
-            console.log(t, 'second-measure end using C4');
+            // console.log(t, 'second-measure end using C4');
             synth.triggerAttack("C4", now + t);
             synth.triggerRelease("C4", now + t + Math.max((Math.random() * 2), 0.25));
             continue;
@@ -241,7 +271,7 @@ function getScale(modeName) {
           if (t % 1 === 0) {
             const tone = Math.floor(Math.random() * chordTones.length);
             const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
-            console.log(t, 'measure end using chord tone', toneName);
+            // console.log(t, 'measure end using chord tone', toneName);
             synth.triggerAttack(toneName, now + t);
             synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
             continue;
@@ -252,15 +282,15 @@ function getScale(modeName) {
             const shift = Math.random() > 0.5 ? 1 : -1;
             const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
             const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
-            console.log(t, 'warbling off', mainToneName);
+            // console.log(t, 'warbling off', mainToneName);
             synth.triggerAttack(mainToneName, now + t);
             synth.triggerRelease(mainToneName, now + t + 0.125);
             synth.triggerAttack(offToneName, now + t + 0.125);
             synth.triggerRelease(offToneName, now + t + 0.25);
             synth.triggerAttack(mainToneName, now + t + 0.25);
             synth.triggerRelease(mainToneName, now + t + Math.max((Math.random() * 2), 0.25));
-            t += 0.25;
-            j++;
+            // t += 0.25;
+            // j++;
             continue;
           }
           // scale run up
@@ -270,7 +300,7 @@ function getScale(modeName) {
             if (runNotes < 3) runNotes = 3;
             if (runNotes > 5) runNotes = 5;
             const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
-            console.log(t, 'scale run up off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
+            // console.log(t, 'scale run up off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
 
             for (let k = 0; k < runNotes; k++) {
               synth.triggerAttack(
@@ -282,8 +312,8 @@ function getScale(modeName) {
                 now + t + (k * 0.25) + 0.25
               );
             }
-            t += (runNotes * 0.25);
-            j += runNotes;
+            // t += (runNotes * 0.25);
+            // j += runNotes;
             continue;
           }
           // scale run down
@@ -293,7 +323,7 @@ function getScale(modeName) {
             if (runNotes < 3) runNotes = 3;
             if (runNotes > 5) runNotes = 5;
             const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
-            console.log(t, 'scale run down off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
+            // console.log(t, 'scale run down off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
 
             for (let k = 0; k < runNotes; k++) {
               synth.triggerAttack(
@@ -305,8 +335,8 @@ function getScale(modeName) {
                 now + t + (k * 0.25) + 0.25
               );
             }
-            t += (runNotes * 0.25);
-            j += runNotes;
+            // t += (runNotes * 0.25);
+            // j += runNotes;
             continue;
           }
           // arpeggiate up
@@ -316,7 +346,7 @@ function getScale(modeName) {
             if (runNotes < 3) runNotes = 3;
             if (runNotes > 5) runNotes = 5;
             const startingChordToneIndex = Math.floor(Math.random() * (chordTones.length / 2));
-            console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
+            // console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
 
             for (let k = 0; k < runNotes; k++) {
               synth.triggerAttack(
@@ -328,8 +358,8 @@ function getScale(modeName) {
                 now + t + (k * 0.25) + 0.25
               );
             }
-            t += (runNotes * 0.25);
-            j += runNotes;
+            // t += (runNotes * 0.25);
+            // j += runNotes;
             continue;
           }
           // arpeggiate down
@@ -339,7 +369,7 @@ function getScale(modeName) {
             if (runNotes < 3) runNotes = 3;
             if (runNotes > 5) runNotes = 5;
             const startingChordToneIndex = Math.floor((Math.random() * (chordTones.length / 2)) + chordTones.length / 2);
-            console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
+            // console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
 
             for (let k = 0; k < runNotes; k++) {
               synth.triggerAttack(
@@ -351,18 +381,19 @@ function getScale(modeName) {
                 now + t + (k * 0.25) + 0.25
               );
             }
-            t += (runNotes * 0.25);
-            j += runNotes;
+            // t += (runNotes * 0.25);
+            // j += runNotes;
             continue;
           }
           
           const toneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
-          console.log(t, 'using songNotes note', toneName);
+          // console.log(t, 'using songNotes note', toneName);
           synth.triggerAttack(toneName, now + t);
           synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
         }
 
         console.log('created song from', nodes.length, 'elements, song will play for about', nodes.length / 4, 'seconds');
+        this.Tone.start();
       });
 
       console.log('songify done!')
