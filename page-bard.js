@@ -98,6 +98,113 @@ function getScale(modeName) {
   return scale;
 }
 
+function playMiddleC(synth, now, t) {
+  // console.log(t, 'second-measure end using C4');
+  synth.triggerAttack("C4", now + t);
+  synth.triggerRelease("C4", now + t + Math.max((Math.random() * 2), 0.25));
+}
+
+function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
+  const tone = Math.floor(Math.random() * chordTones.length);
+  const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
+  // console.log(t, 'measure end using chord tone', toneName);
+  synth.triggerAttack(toneName, now + t);
+  synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
+}
+
+function playWarble(scaleNotesAsAllNotesIndices, composition, j, synth, now, t) {
+  const shift = Math.random() > 0.5 ? 1 : -1;
+  const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
+  const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
+  // console.log(t, 'warbling off', mainToneName);
+  synth.triggerAttack(mainToneName, now + t);
+  synth.triggerRelease(mainToneName, now + t + 0.125);
+  synth.triggerAttack(offToneName, now + t + 0.125);
+  synth.triggerRelease(offToneName, now + t + 0.25);
+  synth.triggerAttack(mainToneName, now + t + 0.25);
+  synth.triggerRelease(mainToneName, now + t + Math.max((Math.random() * 2), 0.25));
+}
+
+function playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t) {
+  const timeString = Math.round(t).toString();
+  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  if (runNotes < 3) runNotes = 3;
+  if (runNotes > 5) runNotes = 5;
+  const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
+  // console.log(t, 'scale run up off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
+
+  for (let k = 0; k < runNotes; k++) {
+    synth.triggerAttack(
+      allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
+      now + t + (k * 0.25)
+    );
+    synth.triggerRelease(
+      allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
+      now + t + (k * 0.25) + 0.25
+    );
+  }
+}
+
+function playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t) {
+  const timeString = Math.round(t).toString();
+  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  if (runNotes < 3) runNotes = 3;
+  if (runNotes > 5) runNotes = 5;
+  const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
+  // console.log(t, 'scale run down off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
+
+  for (let k = 0; k < runNotes; k++) {
+    synth.triggerAttack(
+      allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
+      now + t + (k * 0.25)
+    );
+    synth.triggerRelease(
+      allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
+      now + t + (k * 0.25) + 0.25
+    );
+  }
+}
+
+function playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
+  const timeString = Math.round(t).toString();
+  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  if (runNotes < 3) runNotes = 3;
+  if (runNotes > 5) runNotes = 5;
+  const startingChordToneIndex = Math.floor(Math.random() * (chordTones.length / 2));
+  // console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
+
+  for (let k = 0; k < runNotes; k++) {
+    synth.triggerAttack(
+      allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
+      now + t + (k * 0.25)
+    );
+    synth.triggerRelease(
+      allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
+      now + t + (k * 0.25) + 0.25
+    );
+  }
+}
+
+function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
+  const timeString = Math.round(t).toString();
+  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  if (runNotes < 3) runNotes = 3;
+  if (runNotes > 5) runNotes = 5;
+  const startingChordToneIndex = Math.floor((Math.random() * (chordTones.length / 2)) + chordTones.length / 2);
+  // console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
+  
+  for (let k = 0; k < runNotes; k++) {
+    synth.triggerAttack(
+      allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
+      now + t + (k * 0.25)
+    );
+    synth.triggerRelease(
+      allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
+      now + t + (k * 0.25) + 0.25
+    );
+  }
+}
+
 (() => {
   if (window.pageBardInitialized) {
     console.log('page bard already initialized . . . not initializing again')
@@ -266,125 +373,46 @@ function getScale(modeName) {
           
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
-            // console.log(t, 'second-measure end using C4');
-            synth.triggerAttack("C4", now + t);
-            synth.triggerRelease("C4", now + t + Math.max((Math.random() * 2), 0.25));
+            playMiddleC(synth, now, t);
             continue;
           }
           // if we are at the end of a measure, must play a chord tone
           if (t % 1 === 0) {
-            const tone = Math.floor(Math.random() * chordTones.length);
-            const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
-            // console.log(t, 'measure end using chord tone', toneName);
-            synth.triggerAttack(toneName, now + t);
-            synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
+            playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             continue;
           }
 
           // warble
           if (composition[j] % frequencyFactor === 1) {
-            const shift = Math.random() > 0.5 ? 1 : -1;
-            const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
-            const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
-            // console.log(t, 'warbling off', mainToneName);
-            synth.triggerAttack(mainToneName, now + t);
-            synth.triggerRelease(mainToneName, now + t + 0.125);
-            synth.triggerAttack(offToneName, now + t + 0.125);
-            synth.triggerRelease(offToneName, now + t + 0.25);
-            synth.triggerAttack(mainToneName, now + t + 0.25);
-            synth.triggerRelease(mainToneName, now + t + Math.max((Math.random() * 2), 0.25));
+            playWarble(scaleNotesAsAllNotesIndices, composition, j, synth, now, t);
             // t += 0.25;
             // j++;
             continue;
           }
           // scale run up
           if (composition[j] % frequencyFactor === 2) {
-            const timeString = Math.round(t).toString();
-            let runNotes = Number(timeString.charAt(timeString.length - 1));
-            if (runNotes < 3) runNotes = 3;
-            if (runNotes > 5) runNotes = 5;
-            const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
-            // console.log(t, 'scale run up off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
-
-            for (let k = 0; k < runNotes; k++) {
-              synth.triggerAttack(
-                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
-                now + t + (k * 0.25)
-              );
-              synth.triggerRelease(
-                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
-                now + t + (k * 0.25) + 0.25
-              );
-            }
+            playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           // scale run down
           if (composition[j] % frequencyFactor === 3) {
-            const timeString = Math.round(t).toString();
-            let runNotes = Number(timeString.charAt(timeString.length - 1));
-            if (runNotes < 3) runNotes = 3;
-            if (runNotes > 5) runNotes = 5;
-            const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
-            // console.log(t, 'scale run down off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
-
-            for (let k = 0; k < runNotes; k++) {
-              synth.triggerAttack(
-                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
-                now + t + (k * 0.25)
-              );
-              synth.triggerRelease(
-                allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
-                now + t + (k * 0.25) + 0.25
-              );
-            }
+            playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           // arpeggiate up
           if (composition[j] % frequencyFactor === 4) {
-            const timeString = Math.round(t).toString();
-            let runNotes = Number(timeString.charAt(timeString.length - 1));
-            if (runNotes < 3) runNotes = 3;
-            if (runNotes > 5) runNotes = 5;
-            const startingChordToneIndex = Math.floor(Math.random() * (chordTones.length / 2));
-            // console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
-
-            for (let k = 0; k < runNotes; k++) {
-              synth.triggerAttack(
-                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
-                now + t + (k * 0.25)
-              );
-              synth.triggerRelease(
-                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
-                now + t + (k * 0.25) + 0.25
-              );
-            }
+            playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           // arpeggiate down
           if (composition[j] % frequencyFactor === 5) {
-            const timeString = Math.round(t).toString();
-            let runNotes = Number(timeString.charAt(timeString.length - 1));
-            if (runNotes < 3) runNotes = 3;
-            if (runNotes > 5) runNotes = 5;
-            const startingChordToneIndex = Math.floor((Math.random() * (chordTones.length / 2)) + chordTones.length / 2);
-            // console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
-
-            for (let k = 0; k < runNotes; k++) {
-              synth.triggerAttack(
-                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
-                now + t + (k * 0.25)
-              );
-              synth.triggerRelease(
-                allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
-                now + t + (k * 0.25) + 0.25
-              );
-            }
+            playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
@@ -397,7 +425,7 @@ function getScale(modeName) {
         }
 
         console.log('created song from', nodes.length, 'elements, song will play for about', nodes.length / 4, 'seconds');
-        this.Tone.start();
+        window.Tone.start();
       });
 
       console.log('songify done!')
