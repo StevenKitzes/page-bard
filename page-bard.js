@@ -113,7 +113,7 @@ function playMiddleC(synth, now, t) {
 }
 
 function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
-  const tone = Math.floor(Math.random() * chordTones.length);
+  const tone = Math.floor(t % chordTones.length);
   const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
   // console.log(t, 'measure end using chord tone', toneName);
   synth.triggerAttack(toneName, now + t);
@@ -121,7 +121,7 @@ function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
 }
 
 function playWarble(scaleNotesAsAllNotesIndices, composition, j, synth, now, t) {
-  const shift = Math.random() > 0.5 ? 1 : -1;
+  const shift = t % 2 > 1 ? 1 : -1;
   const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
   const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
   // console.log(t, 'warbling off', mainToneName);
@@ -178,7 +178,7 @@ function playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t
   let runNotes = Number(timeString.charAt(timeString.length - 1));
   if (runNotes < 3) runNotes = 3;
   if (runNotes > 5) runNotes = 5;
-  const startingChordToneIndex = Math.floor(Math.random() * (chordTones.length / 2));
+  const startingChordToneIndex = Math.floor(t % (chordTones.length / 2));
   // console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
 
   for (let k = 0; k < runNotes; k++) {
@@ -198,7 +198,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
   let runNotes = Number(timeString.charAt(timeString.length - 1));
   if (runNotes < 3) runNotes = 3;
   if (runNotes > 5) runNotes = 5;
-  const startingChordToneIndex = Math.floor((Math.random() * (chordTones.length / 2)) + chordTones.length / 2);
+  const startingChordToneIndex = Math.floor((t % (chordTones.length / 2)) + chordTones.length / 2);
   // console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
   
   for (let k = 0; k < runNotes; k++) {
@@ -354,7 +354,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
             composition[j+1] % scaleNotesAsAllNotesIndices.length === composition[j+2] % scaleNotesAsAllNotesIndices.length &&
             composition[j+2] % scaleNotesAsAllNotesIndices.length === composition[j+3] % scaleNotesAsAllNotesIndices.length
           ) {
-            composition[j+1] += Math.random() > 0.5 ? 1 : -1;
+            composition[j+1] += j % 2 === 0 ? 1 : -1;
           }
 
           while (
@@ -374,13 +374,6 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // always increment time
           t += 0.25;
           
-          // rest based on arbitrary rule
-          if (composition[j] % frequencyFactor === 0) {
-            // console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
-            t += 0.25 * ((composition[j] % 8) + 1);
-            continue;
-          }
-          
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
             playMiddleC(synth, now, t);
@@ -391,7 +384,14 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
             playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             continue;
           }
-
+          
+          // rest based on arbitrary rule
+          if (composition[j] % frequencyFactor === 0) {
+            // console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
+            t += 0.25 * ((composition[j] % 8) + 1);
+            continue;
+          }
+          
           // warble
           if (composition[j] % frequencyFactor === 1) {
             playWarble(scaleNotesAsAllNotesIndices, composition, j, synth, now, t);
