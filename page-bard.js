@@ -46,27 +46,29 @@ const allNotes = [
 ];
 
 // should return an array of viable notes suitable for use with ToneJS
-function getScale(modeName) {
-  const possibleModes = [
+function getScale(scaleNameArg) {
+  const possibleScales = [
     'ionian',
     'dorian',
     'phrygian',
     'lydian',
     'mixolydian',
     'aeolian',
-    'locrian'
+    'locrian',
+    'harmonic-minor',
+    'byzantine'
   ]
-  let mode = modeName;
-  if (modeName === 'domain') {
+  let scaleName = scaleNameArg;
+  if (scaleNameArg === 'domain') {
     let domainValue = 0;
     for (let i = 0; i < document.location.hostname.length; i++) {
       domainValue += document.location.hostname.charCodeAt(i);
     }
-    mode = possibleModes[domainValue % possibleModes.length];
-    alert(`${document.location.hostname} feels to me like it should be played in the ${mode} mode.  Let's go!`);
+    scaleName = possibleScales[domainValue % possibleScales.length];
+    alert(`${document.location.hostname} feels to me like it should be played in the ${scaleName} mode.  Let's go!`);
   }
   const scale = [];
-  switch (mode) {
+  switch (scaleName) {
     case 'ionian':
       scale.push(0,2,4,5,7,9,11);
       break;
@@ -87,6 +89,12 @@ function getScale(modeName) {
       break;
     case 'locrian':
       scale.push(0,1,3,5,6,8,10);
+      break;
+    case 'harmonic-minor':
+      scale.push(0,2,3,5,7,8,11);
+      break;
+    case 'byzantine':
+      scale.push(0,1,4,5,7,8,11);
       break;
   }
   for (let i = 0; i < 7; i++) {
@@ -218,7 +226,11 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
     
     if (message.command === "songify") {
       console.log('Setting up Page Bard!');
-      
+
+      // by default, frequencyFactor is calculated from HTML body content to be a number between 8 and 12 inclusive
+      const { frequencyFactor = (document.getElementsByTagName('body')[0].outerHTML.length % 5) + 8 } = message;
+      console.log('calculated frequency factor', frequencyFactor);
+    
       console.log('command was', message.command);
       console.log('with image:', message.image);
       console.log('with stopImage:', message.stopImage);
@@ -313,8 +325,6 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         
         // get all document nodes
         const nodes = document.querySelectorAll('*');
-        const frequencyFactor = (document.getElementsByTagName('body')[0].outerHTML.length % 5) + 8;
-        console.log('calculated frequency factor', frequencyFactor);
 
         const composition = [];
         let i = -1;

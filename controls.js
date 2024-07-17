@@ -11,7 +11,7 @@ function songify(tabs) {
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
     scale: scale
-  })
+  });
 }
 
 function reportError(e) {
@@ -21,65 +21,24 @@ function hideMenu() {
   document.getElementById('page-bard-body').style.display = "none";
 }
 
-document.getElementById('play-domain').addEventListener('click', e => {
+document.getElementById('page-bard-info').addEventListener('click', e => {
+  const deepDescription = document.getElementById('deep-description');
+  const hidden = deepDescription.classList.contains('hidden');
+  if (hidden) deepDescription.classList.remove('hidden');
+  else deepDescription.classList.add('hidden');
+});
+
+document.getElementById('play').addEventListener('click', e => {
   hideMenu();
   scale = "domain";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
-})
-document.getElementById('play-ionian').addEventListener('click', e => {
+});
+document.getElementById('play-custom').addEventListener('click', e => {
   hideMenu();
-  scale = "ionian";
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(songify)
-    .catch(reportError);
-})
-document.getElementById('play-dorian').addEventListener('click', e => {
-  hideMenu();
-  scale = "dorian";
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(songify)
-    .catch(reportError);
-})
-document.getElementById('play-phrygian').addEventListener('click', e => {
-  hideMenu();
-  scale = "phrygian";
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(songify)
-    .catch(reportError);
-})
-document.getElementById('play-lydian').addEventListener('click', e => {
-  hideMenu();
-  scale = "lydian";
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(songify)
-    .catch(reportError);
-})
-document.getElementById('play-mixolydian').addEventListener('click', e => {
-  hideMenu();
-  scale = "mixolydian";
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(songify)
-    .catch(reportError);
-})
-document.getElementById('play-aeolian').addEventListener('click', e => {
-  hideMenu();
-  scale = "aeolian";
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(songify)
-    .catch(reportError);
-})
-document.getElementById('play-locrian').addEventListener('click', e => {
-  hideMenu();
-  scale = "locrian";
+  scale = document.getElementById('select-mode').value || 'domain';
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)

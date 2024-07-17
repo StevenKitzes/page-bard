@@ -9,9 +9,9 @@
         margin: 0px;
         padding: 8px;
         text-align: center;
-        width: 360px;
+        width: 480px;
       }
-      h1 {
+      h1, h2 {
         margin-bottom: 4px;
       }
       img {
@@ -29,41 +29,70 @@
         border: 2px solid orange;
         cursor: pointer;
       }
+      .hidden {
+        display: none;
+      }
+      .smol {
+        font-size: 0.8em;
+        margin-bottom: 0px;
+        margin-top: 0px;
+      }
       #controls {
         display: flex;
         flex-direction: column;
         margin: 0 auto;
         padding: 8px;
       }
+      #deep-description {
+        border: 2px solid orange;
+        border-radius: 1em;
+        margin: 16px 24px 0px;
+        padding: 12px;
+      }
+      #description {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+      }
+      #page-bard-info {
+        cursor: pointer;
+        height: 1.5em;
+        width: 1.5em;
+      }
+      #select-mode {
+        margin-bottom: 12px;
+        margin-left: 24px;
+        margin-right: 24px;
+      }
     </style>
   </head>
   <body id="page-bard-body">
     <h1>Page Bard</h1>
+    <p id="description">Play (almost) any website you visit as a song!&nbsp;<img id="page-bard-info" src="icons/question.png" /></p>
+    <p class="smol">(Some sites prohibit Page Bard from running.)</p>
+    <p id="deep-description" class="hidden">Welcome to Page Bard!  This extension reads the code that defines a website's structure (the HTML DOM) and generates a song from it.  Page Bard composes songs deterministically, meaning you get the same song for the same page every time.  It uses page elements and the website address to generate everything from the notes, to the pacing, to the key/scale in which a song will be composed.<br /><br />When you activate Page Bard, it will place an orange play button on your page in the upper right hand corner.  You can click this to play the song, then click again to stop if you want.  To listen again, you must refresh the page and start again.</p>
     <div id="controls">
-      <div id="play-domain" class="control">
-        <img src="icons/play-button-48.png" /> Let Page Bard write your page's song on its own.
+      <div id="play" class="control">
+        <img src="icons/play-button-48.png" /> Let Page Bard compose on its own.
       </div>
-      <h3>You can collaborate with Page Bard manually if you want:</h3>
-      <div id="play-ionian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Ionian mode
-      </div>
-      <div id="play-dorian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Dorian mode
-      </div>
-      <div id="play-phrygian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Phrygian mode
-      </div>
-      <div id="play-lydian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Lydian mode
-      </div>
-      <div id="play-mixolydian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Mixolydian mode
-      </div>
-      <div id="play-aeolian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Aeolian mode
-      </div>
-      <div id="play-locrian" class="control">
-        <img src="icons/play-button-48.png" /> Play page in Locrian mode
+      <hr style="width: 80%" />
+      <h2>You can collaborate with Page Bard</h2>
+      <p>You can customize some of Page Bard's composition features.</p>
+      <select id="select-mode">
+        <option>Choose the musical mode/scale (optional). . .</option>
+        <option value="ionian">Ionian Mode (major scale)</option>
+        <option value="dorian">Dorian Mode (melodic minor scale)</option>
+        <option value="phrygian">Phrygian Mode</option>
+        <option value="lydian">Lydian Mode</option>
+        <option value="mixolydian">Mixolydian Mode</option>
+        <option value="aeolian">Aeolian Mode (natural minor scale)</option>
+        <option value="locrian">Locrian Mode</option>
+        <option value="harmonic-minor">Harmonic Minor</option>
+        <option value="byzantine">Byzantine</option>
+      </select>
+      <div id="play-custom" class="control">
+        <img src="icons/play-button-48.png" /> Use Page Bard with customization.
       </div>
     </div>
     <script src="controls.js"></script>
