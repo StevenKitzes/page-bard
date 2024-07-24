@@ -44,6 +44,8 @@ const allNotes = [
   "A#5",
   "B5",   // 35
 ];
+// index in allNotes of the home note/root
+let homeNote = 12;
 
 // should return an array of viable notes suitable for use with ToneJS
 function getScale(scaleNameArg) {
@@ -193,10 +195,10 @@ function getOscillator(oscillatorString) {
   }
 }
 
-function playMiddleC(synth, now, t) {
+function playHomeNote(synth, now, t) {
   // console.log(t, 'second-measure end using C4');
-  synth.triggerAttack("C4", now + t);
-  synth.triggerRelease("C4", now + t + Math.max((Math.random() * 2), 0.25));
+  synth.triggerAttack(allNotes[homeNote], now + t);
+  synth.triggerRelease(allNotes[homeNote], now + t + Math.max((Math.random() * 2), 0.25));
 }
 
 function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
@@ -482,13 +484,24 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         
         // create tones for all the notes in songNotes
         for (let j = 0; j < composition.length; j++) {
+          // when we hit the 100th note, shift the key
+          if (j === 100) {
+            const newScaleNoteIndices = scaleNotesAsAllNotesIndices.map(n => n + 5).sort();
+            const newChordTones = chordTones.map(n => n + 5).sort();
+            while (scaleNotesAsAllNotesIndices.length) scaleNotesAsAllNotesIndices.pop();
+            while (chordTones.length) chordTones.pop();
+            newScaleNoteIndices.forEach(n => scaleNotesAsAllNotesIndices.push(n));
+            newChordTones.forEach(n => chordTones.push(n));
+            homeNote += 5;
+          }
+
           // always increment time
           t += 0.25;
           
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
             notes++;
-            playMiddleC(synth, now, t);
+            playHomeNote(synth, now, t);
             continue;
           }
           // if we are at the end of a measure, must play a chord tone
