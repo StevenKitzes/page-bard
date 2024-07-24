@@ -41,7 +41,8 @@ function songify(tabs) {
     arpeggiation: arpeggiation === 'default' ? 'normal' : arpeggiation,
     attack: attack === 'default' ? 'random' : attack,
     decay: decay === 'default' ? 'random' : decay,
-    oscillator: oscillator === 'default' ? 'random' : oscillator
+    oscillator: oscillator === 'default' ? 'random' : oscillator,
+    highlighting: document.getElementById('highlighting').checked
   });
 
   hideMenu();
@@ -74,6 +75,12 @@ settingControlIds.forEach(id => {
     });
   });
 });
+const highlightingControl = document.getElementById('highlighting');
+highlightingControl.addEventListener('change', e => {
+  browser.storage.sync.set({
+    highlighting: highlightingControl.checked
+  });
+});
 setTimeout(() => {
   document.getElementById('loading-modal').style.display = 'none';
   settingControlIds.forEach(id => {
@@ -83,8 +90,15 @@ setTimeout(() => {
         return;
       }
       document.getElementById(id).value = value[id];
-    })
-  })
+    });
+  });
+  browser.storage.sync.get('highlighting').then(value => {
+    if (!value.highlighting) {
+      document.getElementById('highlighting').checked = false;
+      return;
+    }
+    document.getElementById('highlighting').checked = value.highlighting;
+  });
 }, 250);
 
 const hintDefs = [
@@ -131,6 +145,10 @@ const hintDefs = [
   {
     buttonId: 'oscillator-info-button',
     hintCopy: "The oscillator type determines the sound of the synethsized computer 'instrument' that Page Bard will use to play a song.  The name of an oscillator corresponds to the way the sound wave looks when drawn out as a picture.  This is a pretty deep topic that goes beyond the scope of Page Bard, but just as an example, a 'triangle' oscillator will produce a nice smooth sound, while a 'square' oscillator will produce more of a buzz.  Play around and see what you like."
+  },
+  {
+    buttonId: 'highlighting-info-button',
+    hintCopy: "Check this box if you want to turn highlighting on.  This will highlight each element on the page as it is being played.  It won't look super pretty but it can be educational or interesting to see which elements create which type of music.  It's important to note that a lot of elements don't have any visual representation in the browser (such as scripts, meta tags, style tags, etc).  So sometimes you'll hear music but won't see anything highlighted."
   }
 ];
 hintDefs.forEach(hint => {

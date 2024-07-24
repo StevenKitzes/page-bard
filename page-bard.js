@@ -193,34 +193,49 @@ function getOscillator(oscillatorString) {
   }
 }
 
-function playMiddleC(synth, now, t) {
+function playMiddleC(synth, now, t, highlightDetails) {
   // console.log(t, 'second-measure end using C4');
+  const toneDuration = Math.max((Math.random() * 2), 0.25);
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   synth.triggerAttack("C4", now + t);
-  synth.triggerRelease("C4", now + t + Math.max((Math.random() * 2), 0.25));
+  synth.triggerRelease("C4", now + t + toneDuration);
 }
 
-function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
+function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails) {
   const tone = Math.floor(t % chordTones.length);
   const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
   // console.log(t, 'measure end using chord tone', toneName);
+  const toneDuration = Math.max((Math.random() * 2), 0.25);
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   synth.triggerAttack(toneName, now + t);
-  synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
+  synth.triggerRelease(toneName, now + t + toneDuration);
 }
 
-function playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t) {
+function playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails) {
   const shift = t % 2 > 1 ? 1 : -1;
   const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
   const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
   // console.log(t, 'trills off', mainToneName);
+  const toneDuration = Math.max((Math.random() * 2), 0.5);
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   synth.triggerAttack(mainToneName, now + t);
   synth.triggerRelease(mainToneName, now + t + 0.125);
   synth.triggerAttack(offToneName, now + t + 0.125);
   synth.triggerRelease(offToneName, now + t + 0.25);
   synth.triggerAttack(mainToneName, now + t + 0.25);
-  synth.triggerRelease(mainToneName, now + t + Math.max((Math.random() * 2), 0.25));
+  synth.triggerRelease(mainToneName, now + t + toneDuration);
 }
 
-function playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t) {
+function playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails) {
   const timeString = Math.round(t).toString();
   let runNotes = Number(timeString.charAt(timeString.length - 1));
   if (runNotes < 3) runNotes = 3;
@@ -228,6 +243,11 @@ function playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now,
   const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
   // console.log(t, 'scale run up off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
 
+  const toneDuration = (runNotes.length * 0.25) + 0.25;
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   for (let k = 0; k < runNotes; k++) {
     synth.triggerAttack(
       allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex + k]],
@@ -240,7 +260,7 @@ function playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now,
   }
 }
 
-function playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t) {
+function playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails) {
   const timeString = Math.round(t).toString();
   let runNotes = Number(timeString.charAt(timeString.length - 1));
   if (runNotes < 3) runNotes = 3;
@@ -248,6 +268,11 @@ function playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, no
   const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
   // console.log(t, 'scale run down off', allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex]]);
 
+  const toneDuration = (runNotes.length * 0.25) + 0.25;
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   for (let k = 0; k < runNotes; k++) {
     synth.triggerAttack(
       allNotes[scaleNotesAsAllNotesIndices[startToneIndexScaleIndex - k]],
@@ -260,7 +285,7 @@ function playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, no
   }
 }
 
-function playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
+function playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails) {
   const timeString = Math.round(t).toString();
   let runNotes = Number(timeString.charAt(timeString.length - 1));
   if (runNotes < 3) runNotes = 3;
@@ -268,6 +293,11 @@ function playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t
   const startingChordToneIndex = Math.floor(t % (chordTones.length / 2));
   // console.log(t, 'arpeggiate up off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
 
+  const toneDuration = (runNotes.length * 0.25) + 0.25;
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   for (let k = 0; k < runNotes; k++) {
     synth.triggerAttack(
       allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex + k]]],
@@ -280,7 +310,7 @@ function playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t
   }
 }
 
-function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
+function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails) {
   const timeString = Math.round(t).toString();
   let runNotes = Number(timeString.charAt(timeString.length - 1));
   if (runNotes < 3) runNotes = 3;
@@ -288,6 +318,11 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
   const startingChordToneIndex = Math.floor((t % (chordTones.length / 2)) + chordTones.length / 2);
   // console.log(t, 'arpeggiate down off', allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex]]]);
   
+  const toneDuration = (runNotes.length * 0.25) + 0.25;
+  highlightDetails.push({
+    start: t,
+    duration: toneDuration
+  });
   for (let k = 0; k < runNotes; k++) {
     synth.triggerAttack(
       allNotes[scaleNotesAsAllNotesIndices[chordTones[startingChordToneIndex - k]]],
@@ -329,6 +364,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
       console.log('with attack:', message.attack);
       console.log('with decay:', message.decay);
       console.log('with oscillator:', message.oscillator);
+      console.log('with highlighting:', message.highlighting);
 
       // these vars just for logging/debugging
       let notes = 0, rests = 0, trills = 0, scaleRuns = 0, arpeggios = 0, cumulativeRest = 0;
@@ -436,6 +472,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         
         // get all document nodes
         const nodes = document.querySelectorAll('*');
+        const highlightDetails = [];
 
         const composition = [];
         let i = -1;
@@ -484,17 +521,17 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         for (let j = 0; j < composition.length; j++) {
           // always increment time
           t += 0.25;
-          
+
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
             notes++;
-            playMiddleC(synth, now, t);
+            playMiddleC(synth, now, t, highlightDetails);
             continue;
           }
           // if we are at the end of a measure, must play a chord tone
           if (t % 1 === 0) {
             notes++;
-            playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
+            playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails);
             continue;
           }
           
@@ -502,6 +539,10 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           if (composition[j] % frequencyFactor < restsThreshold) {
             rests++;
             const restToAdd = 0.25 * ((composition[j] % restDurationFactor) + 1);
+            highlightDetails.push({
+              start: t,
+              duration: restToAdd
+            });
             cumulativeRest += restToAdd;
             t += restToAdd;
             continue;
@@ -510,7 +551,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // trill
           if (composition[j] % frequencyFactor < trillsThreshold) {
             trills++;
-            playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t);
+            playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails);
             // t += 0.25;
             // j++;
             continue;
@@ -518,7 +559,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // scale run up
           if (composition[j] % frequencyFactor < scaleRunUpThreshold) {
             scaleRuns++;
-            playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t);
+            playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
@@ -526,7 +567,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // scale run down
           if (composition[j] % frequencyFactor < scaleRunDownThreshold) {
             scaleRuns++;
-            playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t);
+            playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
@@ -534,7 +575,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // arpeggiate up
           if (composition[j] % frequencyFactor < arpeggiationUpThreshold) {
             arpeggios++;
-            playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
+            playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
@@ -542,7 +583,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // arpeggiate down
           if (composition[j] % frequencyFactor < arpeggiationDownThreshold) {
             arpeggios++;
-            playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
+            playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
@@ -550,8 +591,13 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           
           notes++;
           const toneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
+          const toneDuration = Math.max((Math.random() * 2), 0.25);
+          highlightDetails.push({
+            start: t,
+            duration: toneDuration
+          });
           synth.triggerAttack(toneName, now + t);
-          synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
+          synth.triggerRelease(toneName, now + t + toneDuration);
         }
 
         console.log(`Final feature counts:
@@ -565,6 +611,22 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
         console.log('created song from', nodes.length, 'elements, song will play for about', minutes, 'minutes and ', seconds, 'seconds');
+
+        if (message.highlighting) {
+          for (let i = 0; i < highlightDetails.length; i++) {
+            setTimeout(() => {
+              const initialBackground = nodes[i].style.backgroundColor;
+              const initialFilter = nodes[i].style.filter;
+              nodes[i].style.backgroundColor = 'orange';
+              nodes[i].style.filter = 'drop-shadow(black 8px 8px 4px)';
+              setTimeout(() => {
+                nodes[i].style.backgroundColor = initialBackground;
+                nodes[i].style.filter = initialFilter;
+              }, highlightDetails[i].duration * 1000);
+            }, highlightDetails[i].start * 1000);
+          }
+        }
+
         window.Tone.start();
       });
 
