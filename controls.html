@@ -4,12 +4,11 @@
       body {
         background-color: black;
         color: white;
-        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-        height: auto;
+        font-family: 'Franklin Gothic Medium', Arial, sans-serif;
         margin: 0px;
         padding: 8px;
         text-align: center;
-        width: 480px;
+        width: 640px;
       }
       h1, h2 {
         margin-bottom: 4px;
@@ -17,31 +16,51 @@
       img {
         margin-right: 8px;
       }
+      select {
+        width: 80%;
+      }
       .control {
         align-items: center;
         border: 2px solid black;
         display: flex;
         flex-direction: row;
-        margin: 4px;
+        justify-content: center;
+        margin: 4px auto;
         width: 100%;
       }
       .control:hover {
         border: 2px solid orange;
         cursor: pointer;
       }
+      .customization-row {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        margin: 12px;
+        width: 100%;
+      }
       .hidden {
         display: none;
       }
-      .smol {
-        font-size: 0.8em;
-        margin-bottom: 0px;
-        margin-top: 0px;
+      .q-btn {
+        cursor: pointer;
+        height: 1.5em;
+        width: 1.5em;
       }
       #controls {
         display: flex;
         flex-direction: column;
         margin: 0 auto;
         padding: 8px;
+      }
+      #customization {
+        margin-bottom: 0px;
+        margin-top: 4px;
+      }
+      #customization-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
       }
       #deep-description {
         border: 2px solid orange;
@@ -54,43 +73,164 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
+        margin-bottom: 0px;
       }
-      #page-bard-info {
+      #hint-modal {
+        background-color: #663300;
+        border: 3px solid orange;
+        box-sizing: border-box;
+        color: #E90;
         cursor: pointer;
-        height: 1.5em;
-        width: 1.5em;
-      }
-      #select-mode {
-        margin-bottom: 12px;
-        margin-left: 24px;
-        margin-right: 24px;
+        display: none;
+        font-size: 1.2em;
+        height: 100vh;
+        left: 0px;
+        padding: 24px;
+        position: fixed;
+        top: 0px;
+        width: 100vw;
+        z-index: 10;
       }
     </style>
   </head>
   <body id="page-bard-body">
+    <div id="hint-modal">
+      <p id="hint-copy-element"></p>
+      <p>(Click anywhere to close.)</p>
+    </div>
+
     <h1>Page Bard</h1>
-    <p id="description">Play (almost) any website you visit as a song!&nbsp;<img id="page-bard-info" src="icons/question.png" /></p>
-    <p class="smol">(Some sites prohibit Page Bard from running.)</p>
-    <p id="deep-description" class="hidden">Welcome to Page Bard!  This extension reads the code that defines a website's structure (the HTML DOM) and generates a song from it.  Page Bard composes songs deterministically, meaning you get the same song for the same page every time.  It uses page elements and the website address to generate everything from the notes, to the pacing, to the key/scale in which a song will be composed.<br /><br />When you activate Page Bard, it will place an orange play button on your page in the upper right hand corner.  You can click this to play the song, then click again to stop if you want.  To listen again, you must refresh the page and start again.</p>
+    <p id="description">Play (almost) any website you visit as a song!&nbsp;&nbsp;<img id="page-bard-info" class="q-btn" src="icons/question.png" /></p>
     <div id="controls">
       <div id="play" class="control">
         <img src="icons/play-button-48.png" /> Let Page Bard compose on its own.
       </div>
       <hr style="width: 80%" />
-      <h2>You can collaborate with Page Bard</h2>
-      <p>You can customize some of Page Bard's composition features.</p>
-      <select id="select-mode">
-        <option value="domain">Choose the musical mode/scale (optional). . .</option>
-        <option value="ionian">Ionian Mode (major scale)</option>
-        <option value="dorian">Dorian Mode (melodic minor scale)</option>
-        <option value="phrygian">Phrygian Mode</option>
-        <option value="lydian">Lydian Mode</option>
-        <option value="mixolydian">Mixolydian Mode</option>
-        <option value="aeolian">Aeolian Mode (natural minor scale)</option>
-        <option value="locrian">Locrian Mode</option>
-        <option value="harmonic-minor">Harmonic Minor</option>
-        <option value="byzantine">Byzantine</option>
-      </select>
+      <p id="customization">Some customization is available.</p>
+
+      <div id="customization-controls">
+        <div class="customization-row">
+          <select id="select-mode">
+            <option value="domain">Choose musical mode/scale . . .</option>
+            <option value="ionian">Ionian Mode (major scale)</option>
+            <option value="dorian">Dorian Mode (melodic minor scale)</option>
+            <option value="phrygian">Phrygian Mode</option>
+            <option value="lydian">Lydian Mode</option>
+            <option value="mixolydian">Mixolydian Mode</option>
+            <option value="aeolian">Aeolian Mode (natural minor scale)</option>
+            <option value="locrian">Locrian Mode</option>
+            <option value="harmonic-minor">Harmonic Minor</option>
+            <option value="byzantine">Byzantine</option>
+          </select>&nbsp;<img id="scale-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-randomization">
+            <option value="normal">Choose randomization factor . . .</option>
+            <option value="none">Plain notes only</option>
+            <option value="minimal">Minimal feature usage</option>
+            <option value="low">Low feature usage</option>
+            <option value="normal">Normal/default feature usage</option>
+            <option value="high">Lots of feature usage</option>
+            <option value="extreme">Tons of feature usage</option>
+          </select>&nbsp;<img id="randomization-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-rests">
+            <option value="normal">Choose rest frequency . . .</option>
+            <option value="none">No rests</option>
+            <option value="minimal">Minimal rests</option>
+            <option value="low">Less rests</option>
+            <option value="normal">Normal/default rest usage</option>
+            <option value="high">Lots of rests</option>
+            <option value="extreme">Tons of rests</option>
+          </select>&nbsp;<img id="rests-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-rest-duration">
+            <option value="long">Choose rest duration . . .</option>
+            <option value="shortest">Shortest</option>
+            <option value="short">Short</option>
+            <option value="medium">Medium</option>
+            <option value="long">Long</option>
+            <option value="longest">Longest</option>
+          </select>&nbsp;<img id="rest-duration-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-trills">
+            <option value="normal">Choose trill frequency . . .</option>
+            <option value="none">No trills</option>
+            <option value="minimal">Minimal trills</option>
+            <option value="low">Less trills</option>
+            <option value="normal">Normal/default trill usage</option>
+            <option value="high">Lots of trills</option>
+            <option value="extreme">Tons of trills</option>
+          </select>&nbsp;<img id="trills-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-scale-runs">
+            <option value="normal">Choose scale run frequency . . .</option>
+            <option value="none">No scale runs</option>
+            <option value="minimal">Minimal scale runs</option>
+            <option value="low">Less scale runs</option>
+            <option value="normal">Normal/default scale run usage</option>
+            <option value="high">Lots of scale runs</option>
+            <option value="extreme">Tons of scale runs</option>
+          </select>&nbsp;<img id="scale-runs-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-arpeggiation">
+            <option value="normal">Choose arpeggiation frequency . . .</option>
+            <option value="none">No arpeggiation</option>
+            <option value="minimal">Minimal arpeggiation</option>
+            <option value="low">Less arpeggiation</option>
+            <option value="normal">Normal/default arpeggiation usage</option>
+            <option value="high">Lots of arpeggiation</option>
+            <option value="extreme">Tons of arpeggiation</option>
+          </select>&nbsp;<img id="arpeggiation-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+
+        <div class="customization-row">
+          <select id="select-attack">
+            <option value="random">Choose attack speed . . .</option>
+            <option value="random">Random</option>
+            <option value="slowest">Slowest</option>
+            <option value="slow">Slow</option>
+            <option value="medium">Medium</option>
+            <option value="fast">Fast</option>
+            <option value="fastest">Fastest</option>
+          </select>&nbsp;<img id="attack-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+
+        <div class="customization-row">
+          <select id="select-decay">
+            <option value="random">Choose decay speed . . .</option>
+            <option value="random">Random</option>
+            <option value="slowest">Slowest</option>
+            <option value="slow">Slow</option>
+            <option value="medium">Medium</option>
+            <option value="fast">Fast</option>
+            <option value="fastest">Fastest</option>
+          </select>&nbsp;<img id="decay-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+
+        <div class="customization-row">
+          <select id="select-oscillator">
+            <option value="random">Choose oscillator . . .</option>
+            <option value="random">Random</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="sine">Sine</option>
+            <option value="square">Square</option>
+            <option value="triangle">Triangle</option>
+          </select>&nbsp;<img id="oscillator-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+      </div>
+
       <div id="play-custom" class="control">
         <img src="icons/play-button-48.png" /> Use Page Bard with customization.
       </div>

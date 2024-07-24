@@ -106,6 +106,93 @@ function getScale(scaleNameArg) {
   return scale;
 }
 
+function valueFromFreqString(freq) {
+  switch (freq) {
+    case 'none': return 0;
+    case 'minimal': return 2;
+    case 'low': return 4;
+    case 'normal': return 6;
+    case 'high': return 10;
+    case 'extreme': return 16;
+    default: return 6;
+  }
+}
+
+function getFreqFactor(factorString, maxFeatureThreshold) {
+  if (maxFeatureThreshold < 1) return 1;
+  switch (factorString) {
+    case 'none': return maxFeatureThreshold;
+    case 'minimal': return Math.ceil(maxFeatureThreshold * 1.2);
+    case 'low': return Math.ceil(maxFeatureThreshold * 1.5);
+    case 'normal': return maxFeatureThreshold * 2;
+    case 'high': return Math.ceil(maxFeatureThreshold * 2.5);
+    case 'extreme': return maxFeatureThreshold * 3;
+    default: return maxFeatureThreshold * 2;
+  }
+}
+
+function getRestDurationFactor(restDurationString) {
+  switch (restDurationString) {
+    case 'shortest': return 2;
+    case 'short': return 4;
+    case 'medium': return 6;
+    case 'long': return 8;
+    case 'longest': return 10;
+  }
+}
+
+function getAttack(attackString) {
+  if (attackString === 'random') {
+    let attack = 0;
+    for (let i = 0; i < document.location.hostname.length; i++) {
+      attack += document.location.hostname.charCodeAt(i);
+    }
+    return (attack % 6) / 10;
+  }
+
+  switch (attackString) {
+    case 'slowest': return 0.6;
+    case 'slow': return 0.4;
+    case 'medium': return 0.2;
+    case 'fast': return 0.1;
+    case 'fastest': return 0;
+  }
+}
+function getDecay(decayString) {
+  if (decayString === 'random') {
+    let decay = 0;
+    for (let i = 0; i < document.location.href.length; i++) {
+      decay += document.location.href.charCodeAt(i);
+    }
+    return (decay % 11) / 10;
+  }
+
+  switch (decayString) {
+    case 'slowest': return 0.8;
+    case 'slow': return 0.6;
+    case 'medium': return 0.3;
+    case 'fast': return 0.15;
+    case 'fastest': return 0;
+  }
+}
+
+function getOscillator(oscillatorString) {
+  if (oscillatorString === 'random') {
+    const oscillatorValue = document.location.pathname.length % 4;
+    switch (oscillatorValue) {
+      case 0: return 'sawtooth';
+      case 1: return 'square';
+      case 2: return 'triangle';
+      case 3: return 'sine';
+    }
+  }
+
+  switch (oscillatorString) {
+    case 'sawtooth', 'square', 'triangle', 'sine': return oscillatorString;
+    default: return 'square';
+  }
+}
+
 function playMiddleC(synth, now, t) {
   // console.log(t, 'second-measure end using C4');
   synth.triggerAttack("C4", now + t);
@@ -120,11 +207,11 @@ function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t) {
   synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
 }
 
-function playWarble(scaleNotesAsAllNotesIndices, composition, j, synth, now, t) {
+function playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t) {
   const shift = t % 2 > 1 ? 1 : -1;
   const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
   const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
-  // console.log(t, 'warbling off', mainToneName);
+  // console.log(t, 'trills off', mainToneName);
   synth.triggerAttack(mainToneName, now + t);
   synth.triggerRelease(mainToneName, now + t + 0.125);
   synth.triggerAttack(offToneName, now + t + 0.125);
@@ -227,24 +314,63 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
     if (message.command === "songify") {
       console.log('Setting up Page Bard!');
 
-      // by default, frequencyFactor is calculated from HTML body content to be a number between 8 and 12 inclusive
-      const { frequencyFactor = (document.getElementsByTagName('body')[0].outerHTML.length % 5) + 8 } = message;
-      console.log('calculated frequency factor', frequencyFactor);
-    
       console.log('command was', message.command);
+
       console.log('with image:', message.image);
       console.log('with stopImage:', message.stopImage);
+
       console.log('with scale:', message.scale);
+      console.log('with randomization:', message.randomization);
+      console.log('with rests:', message.rests);
+      console.log('with rest duration:', message.restDuration);
+      console.log('with trills:', message.trills);
+      console.log('with scale runs:', message.scaleRuns);
+      console.log('with arpeggiation:', message.arpeggiation);
+      console.log('with attack:', message.attack);
+      console.log('with decay:', message.decay);
+      console.log('with oscillator:', message.oscillator);
+
+      // these vars just for logging/debugging
+      let notes = 0, rests = 0, trills = 0, scaleRuns = 0, arpeggios = 0, cumulativeRest = 0;
       
-      if (!message.image) {
-        console.log('image not included in message :( canceling');
-        return;
-      }  
-      if (!message.scale) {
-        console.log('scale not included in message :( canceling');
+      const warningText = [];
+
+      if (!message.image) warningText.push('No play image found!');
+      if (!message.stopImage) warningText.push('No stop image found!');
+      if (!message.scale) warningText.push('No scale found!');
+      if (!message.randomization) warningText.push('No randomization factor found!');
+      if (!message.rests) warningText.push('No rests factor found!');
+      if (!message.restDuration) warningText.push('No rest duration found!');
+      if (!message.trills) warningText.push('No trills factor found!');
+      if (!message.scaleRuns) warningText.push('No scale runs factor found!');
+      if (!message.arpeggiation) warningText.push('No arpeggiation factor found!');
+      if (!message.attack) warningText.push('No attack value found!');
+      if (!message.decay) warningText.push('No decay value found!');
+      if (!message.oscillator) warningText.push('No oscillator found!');
+    
+      if (warningText.length > 0) {
+        alert(['Page Bard command message error:', ...warningText].join(' '));
         return;
       }
-      
+
+      const restsThreshold = valueFromFreqString(message.rests);
+      const trillsThreshold = restsThreshold + valueFromFreqString(message.trills);
+      const scaleRunUpThreshold = trillsThreshold + valueFromFreqString(message.scaleRuns) / 2;
+      const scaleRunDownThreshold = scaleRunUpThreshold + valueFromFreqString(message.scaleRuns) / 2;
+      const arpeggiationUpThreshold = scaleRunDownThreshold + valueFromFreqString(message.arpeggiation) / 2;
+      const arpeggiationDownThreshold = arpeggiationUpThreshold + valueFromFreqString(message.arpeggiation) / 2;
+      const frequencyFactor = getFreqFactor(message.randomization, arpeggiationDownThreshold);
+
+      const restDurationFactor = getRestDurationFactor(message.restDuration);
+
+      console.info(`Total frequency factor: ${frequencyFactor}
+        Rest threshold: ${restsThreshold}
+        Trills threshold: ${trillsThreshold}
+        Scale run (up) threshold: ${scaleRunUpThreshold}
+        Scale run (down) threshold: ${scaleRunDownThreshold}
+        Arpeggiation (up) threshold: ${arpeggiationUpThreshold}
+        Arpeggiation (down) threshold: ${arpeggiationDownThreshold}`)
+
       const playButton = document.createElement('img');
       playButton.src = message.image;
       playButton.style.cursor = "pointer";
@@ -265,25 +391,10 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         console.log('got',scaleNotesAsAllNotesIndices,'from getScale');
         // scaleNotesAsAllNotesIndices.forEach((t) => console.log('scale note', t, allNotes[t]));
         // chordTones.forEach((t, i) => console.log('chord tone', t, allNotes[scaleNotesAsAllNotesIndices[t]]));
-        
-        let attack = 0;
-        for (let i = 0; i < document.location.hostname.length; i++) {
-          attack += document.location.hostname.charCodeAt(i);
-        }
-        attack = (attack % 6) / 10 + 0.5;
-        let decay = 0;
-        for (let i = 0; i < document.location.href.length; i++) {
-          decay += document.location.href.charCodeAt(i);
-        }
-        decay = (decay % 6) / 10 + 0.5;
-        const oscillatorValue = document.location.pathname.length % 4;
-        let oscillator;
-        switch (oscillatorValue) {
-          case 0: oscillator = 'sawtooth'; break;
-          case 1: oscillator = 'square'; break;
-          case 2: oscillator = 'triangle'; break;
-          case 3: oscillator = 'sine'; break;
-        }
+
+        const oscillator = getOscillator(message.oscillator);
+        const attack = getAttack(message.attack);
+        const decay = getDecay(message.decay);
         const synth = new window.Tone.PolySynth(Tone.Synth, {
           'oscillator': {
             'type': oscillator
@@ -347,7 +458,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           composition.push(nodeValue);
         }
         
-        // replace excessive repeats with a warble
+        // replace excessive repeats with a trill
         for (let j = 0; j < composition.length - 3; j++) {
           if (
             composition[j] % scaleNotesAsAllNotesIndices.length === composition[j+1] % scaleNotesAsAllNotesIndices.length &&
@@ -376,65 +487,80 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           
           // if we are at the end of every other measure, must play root tone (my arbitrary decision)
           if (t % 2 === 0) {
+            notes++;
             playMiddleC(synth, now, t);
             continue;
           }
           // if we are at the end of a measure, must play a chord tone
           if (t % 1 === 0) {
+            notes++;
             playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             continue;
           }
           
           // rest based on arbitrary rule
-          if (composition[j] % frequencyFactor === 0) {
-            // console.log(t, 'skipping note, would have been', allNotes[composition[j] % scaleNotesAsAllNotesIndices.length]);
-            t += 0.25 * ((composition[j] % 8) + 1);
+          if (composition[j] % frequencyFactor < restsThreshold) {
+            rests++;
+            const restToAdd = 0.25 * ((composition[j] % restDurationFactor) + 1);
+            cumulativeRest += restToAdd;
+            t += restToAdd;
             continue;
           }
           
-          // warble
-          if (composition[j] % frequencyFactor === 1) {
-            playWarble(scaleNotesAsAllNotesIndices, composition, j, synth, now, t);
+          // trill
+          if (composition[j] % frequencyFactor < trillsThreshold) {
+            trills++;
+            playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t);
             // t += 0.25;
             // j++;
             continue;
           }
           // scale run up
-          if (composition[j] % frequencyFactor === 2) {
+          if (composition[j] % frequencyFactor < scaleRunUpThreshold) {
+            scaleRuns++;
             playScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           // scale run down
-          if (composition[j] % frequencyFactor === 3) {
+          if (composition[j] % frequencyFactor < scaleRunDownThreshold) {
+            scaleRuns++;
             playScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           // arpeggiate up
-          if (composition[j] % frequencyFactor === 4) {
+          if (composition[j] % frequencyFactor < arpeggiationUpThreshold) {
+            arpeggios++;
             playArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           // arpeggiate down
-          if (composition[j] % frequencyFactor === 5) {
+          if (composition[j] % frequencyFactor < arpeggiationDownThreshold) {
+            arpeggios++;
             playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t);
             // t += (runNotes * 0.25);
             // j += runNotes;
             continue;
           }
           
+          notes++;
           const toneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
-          // console.log(t, 'using songNotes note', toneName);
           synth.triggerAttack(toneName, now + t);
           synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
         }
 
         console.log('created song from', nodes.length, 'elements, song will play for about', nodes.length / 4, 'seconds');
+        console.log(`Final feature counts:
+          ${notes} plain notes (including chord tones)
+          ${rests} rests (${cumulativeRest}s of cumulative rest time)
+          ${trills} trills
+          ${scaleRuns} scale runs
+          ${arpeggios} arpeggios`)
         window.Tone.start();
       });
 
