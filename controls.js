@@ -33,15 +33,15 @@ function songify(tabs) {
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
     scale,
-    randomization,
-    rests,
-    restDuration,
-    trills,
-    scaleRuns,
-    arpeggiation,
-    attack,
-    decay,
-    oscillator
+    randomization: randomization === 'default' ? 'normal' : randomization,
+    rests: rests === 'default' ? 'normal' : rests,
+    restDuration: restDuration === 'default' ? 'long' : restDuration,
+    trills: trills === 'default' ? 'normal' : trills,
+    scaleRuns: scaleRuns === 'default' ? 'normal' : scaleRuns,
+    arpeggiation: arpeggiation === 'default' ? 'normal' : arpeggiation,
+    attack: attack === 'default' ? 'random' : attack,
+    decay: decay === 'default' ? 'random' : decay,
+    oscillator: oscillator === 'default' ? 'random' : oscillator
   });
 
   hideMenu();
@@ -53,6 +53,39 @@ function reportError(e) {
 function hideMenu() {
   document.getElementById('page-bard-body').style.display = "none";
 }
+
+const settingControlIds = [
+  'select-mode',
+  'select-randomization',
+  'select-rests',
+  'select-rest-duration',
+  'select-trills',
+  'select-scale-runs',
+  'select-arpeggiation',
+  'select-attack',
+  'select-decay',
+  'select-oscillator'
+];
+settingControlIds.forEach(id => {
+  const control = document.getElementById(id);
+  control.addEventListener('change', e => {
+    browser.storage.sync.set({
+      [id]: control.value
+    });
+  });
+});
+setTimeout(() => {
+  document.getElementById('loading-modal').style.display = 'none';
+  settingControlIds.forEach(id => {
+    browser.storage.sync.get(id).then(value => {
+      if (!value[id]) {
+        document.getElementById(id).value = 'default';
+        return;
+      }
+      document.getElementById(id).value = value[id];
+    })
+  })
+}, 250);
 
 const hintDefs = [
   {
@@ -112,7 +145,7 @@ document.getElementById('hint-modal').addEventListener('click', e => {
 });
 
 document.getElementById('play').addEventListener('click', e => {
-  scale = "domain";
+  scale = "default";
   randomization = "normal";
   rests = "normal";
   restDuration = "long";
@@ -129,16 +162,16 @@ document.getElementById('play').addEventListener('click', e => {
 });
 
 document.getElementById('play-custom').addEventListener('click', e => {
-  scale = document.getElementById('select-mode').value || 'domain';
-  randomization = document.getElementById('select-randomization').value || 'normal';
-  rests = document.getElementById('select-rests').value || 'normal';
-  restDuration = document.getElementById('select-rest-duration').value || 'long';
-  trills = document.getElementById('select-trills').value || 'normal';
-  scaleRuns = document.getElementById('select-scale-runs').value || 'normal';
-  arpeggiation = document.getElementById('select-arpeggiation').value || 'normal';
-  attack = document.getElementById('select-attack').value || 'random';
-  decay = document.getElementById('select-decay').value || 'random';
-  oscillator = document.getElementById('select-oscillator').value || 'random';
+  scale = document.getElementById('select-mode').value;
+  randomization = document.getElementById('select-randomization').value;
+  rests = document.getElementById('select-rests').value;
+  restDuration = document.getElementById('select-rest-duration').value;
+  trills = document.getElementById('select-trills').value;
+  scaleRuns = document.getElementById('select-scale-runs').value;
+  arpeggiation = document.getElementById('select-arpeggiation').value;
+  attack = document.getElementById('select-attack').value;
+  decay = document.getElementById('select-decay').value;
+  oscillator = document.getElementById('select-oscillator').value;
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)

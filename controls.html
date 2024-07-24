@@ -91,12 +91,30 @@
         width: 100vw;
         z-index: 10;
       }
+      #loading-modal {
+        background-color: #663300;
+        border: 3px solid orange;
+        box-sizing: border-box;
+        color: #E90;
+        font-size: 1.5em;
+        height: 100vh;
+        left: 0px;
+        padding: 24px;
+        position: fixed;
+        top: 0px;
+        width: 100vw;
+        z-index: 10;
+      }
     </style>
   </head>
   <body id="page-bard-body">
     <div id="hint-modal">
       <p id="hint-copy-element"></p>
       <p>(Click anywhere to close.)</p>
+    </div>
+
+    <div id="loading-modal">
+      <h1>Loading Page Bard . . .</h1>
     </div>
 
     <h1>Page Bard</h1>
@@ -111,7 +129,7 @@
       <div id="customization-controls">
         <div class="customization-row">
           <select id="select-mode">
-            <option value="domain">Choose musical mode/scale . . .</option>
+            <option value="default">Choose musical mode/scale . . .</option>
             <option value="ionian">Ionian Mode (major scale)</option>
             <option value="dorian">Dorian Mode (melodic minor scale)</option>
             <option value="phrygian">Phrygian Mode</option>
@@ -126,7 +144,7 @@
   
         <div class="customization-row">
           <select id="select-randomization">
-            <option value="normal">Choose randomization factor . . .</option>
+            <option value="default">Choose randomization factor . . .</option>
             <option value="none">Plain notes only</option>
             <option value="minimal">Minimal feature usage</option>
             <option value="low">Low feature usage</option>
@@ -138,7 +156,7 @@
   
         <div class="customization-row">
           <select id="select-rests">
-            <option value="normal">Choose rest frequency . . .</option>
+            <option value="default">Choose rest frequency . . .</option>
             <option value="none">No rests</option>
             <option value="minimal">Minimal rests</option>
             <option value="low">Less rests</option>
@@ -150,7 +168,7 @@
   
         <div class="customization-row">
           <select id="select-rest-duration">
-            <option value="long">Choose rest duration . . .</option>
+            <option value="default">Choose rest duration . . .</option>
             <option value="shortest">Shortest</option>
             <option value="short">Short</option>
             <option value="medium">Medium</option>
@@ -161,7 +179,7 @@
   
         <div class="customization-row">
           <select id="select-trills">
-            <option value="normal">Choose trill frequency . . .</option>
+            <option value="default">Choose trill frequency . . .</option>
             <option value="none">No trills</option>
             <option value="minimal">Minimal trills</option>
             <option value="low">Less trills</option>
@@ -173,7 +191,7 @@
   
         <div class="customization-row">
           <select id="select-scale-runs">
-            <option value="normal">Choose scale run frequency . . .</option>
+            <option value="default">Choose scale run frequency . . .</option>
             <option value="none">No scale runs</option>
             <option value="minimal">Minimal scale runs</option>
             <option value="low">Less scale runs</option>
@@ -185,7 +203,7 @@
   
         <div class="customization-row">
           <select id="select-arpeggiation">
-            <option value="normal">Choose arpeggiation frequency . . .</option>
+            <option value="default">Choose arpeggiation frequency . . .</option>
             <option value="none">No arpeggiation</option>
             <option value="minimal">Minimal arpeggiation</option>
             <option value="low">Less arpeggiation</option>
@@ -197,7 +215,7 @@
 
         <div class="customization-row">
           <select id="select-attack">
-            <option value="random">Choose attack speed . . .</option>
+            <option value="default">Choose attack speed . . .</option>
             <option value="random">Random</option>
             <option value="slowest">Slowest</option>
             <option value="slow">Slow</option>
@@ -209,7 +227,7 @@
 
         <div class="customization-row">
           <select id="select-decay">
-            <option value="random">Choose decay speed . . .</option>
+            <option value="default">Choose decay speed . . .</option>
             <option value="random">Random</option>
             <option value="slowest">Slowest</option>
             <option value="slow">Slow</option>
@@ -221,7 +239,7 @@
 
         <div class="customization-row">
           <select id="select-oscillator">
-            <option value="random">Choose oscillator . . .</option>
+            <option value="default">Choose oscillator . . .</option>
             <option value="random">Random</option>
             <option value="sawtooth">Sawtooth</option>
             <option value="sine">Sine</option>
@@ -234,6 +252,8 @@
       <div id="play-custom" class="control">
         <img src="icons/play-button-48.png" /> Use Page Bard with customization.
       </div>
+
+      <div id="logs"></div>
     </div>
     <script src="controls.js"></script>
   </body>

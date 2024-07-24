@@ -59,7 +59,7 @@ function getScale(scaleNameArg) {
     'byzantine'
   ]
   let scaleName = scaleNameArg;
-  if (scaleNameArg === 'domain') {
+  if (scaleNameArg === 'default') {
     let domainValue = 0;
     for (let i = 0; i < document.location.hostname.length; i++) {
       domainValue += document.location.hostname.charCodeAt(i);
@@ -554,13 +554,17 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           synth.triggerRelease(toneName, now + t + Math.max((Math.random() * 2), 0.25));
         }
 
-        console.log('created song from', nodes.length, 'elements, song will play for about', nodes.length / 4, 'seconds');
         console.log(`Final feature counts:
           ${notes} plain notes (including chord tones)
           ${rests} rests (${cumulativeRest}s of cumulative rest time)
           ${trills} trills
           ${scaleRuns} scale runs
-          ${arpeggios} arpeggios`)
+          ${arpeggios} arpeggios`);
+        
+        const totalSeconds = (nodes.length / 4) + cumulativeRest;
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        console.log('created song from', nodes.length, 'elements, song will play for about', minutes, 'minutes and ', seconds, 'seconds');
         window.Tone.start();
       });
 

@@ -5,7 +5,7 @@
 
   "description": "Interpret a web page's DOM as a song and play it.",
 
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
 
   "browser_action": {
     "default_icon": "icons/page-song-32.jpg",
