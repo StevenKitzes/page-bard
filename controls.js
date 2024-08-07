@@ -67,6 +67,7 @@ const settingControlIds = [
   'select-decay',
   'select-oscillator'
 ];
+
 settingControlIds.forEach(id => {
   const control = document.getElementById(id);
   control.addEventListener('change', e => {
@@ -75,12 +76,14 @@ settingControlIds.forEach(id => {
     });
   });
 });
+
 const highlightingControl = document.getElementById('highlighting');
 highlightingControl.addEventListener('change', e => {
   browser.storage.sync.set({
     highlighting: highlightingControl.checked
   });
 });
+
 setTimeout(() => {
   document.getElementById('loading-modal').style.display = 'none';
   settingControlIds.forEach(id => {
@@ -194,4 +197,28 @@ document.getElementById('play-custom').addEventListener('click', e => {
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
-})
+});
+
+document.getElementById('reset-to-defaults').addEventListener('click', e => {
+  document.getElementById('select-mode').value = 'default';
+  document.getElementById('select-randomization').value = 'default';
+  document.getElementById('select-rests').value = 'default';
+  document.getElementById('select-rest-duration').value = 'default';
+  document.getElementById('select-trills').value = 'default';
+  document.getElementById('select-scale-runs').value = 'default';
+  document.getElementById('select-arpeggiation').value = 'default';
+  document.getElementById('select-attack').value = 'default';
+  document.getElementById('select-decay').value = 'default';
+  document.getElementById('select-oscillator').value = 'default';
+  document.getElementById('highlighting').checked = true;
+
+  settingControlIds.forEach(id => {
+    const control = document.getElementById(id);
+    browser.storage.sync.set({
+      [id]: control.value
+    });
+  });  
+  browser.storage.sync.set({
+    highlighting: document.getElementById('highlighting').checked
+  });
+});

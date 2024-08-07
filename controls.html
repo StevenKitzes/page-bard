@@ -36,9 +36,10 @@
         align-items: center;
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: space-between;
         margin: 12px;
-        width: 100%;
+        padding: 0 12px;
+        width: calc(100% - 24px);
       }
       .hidden {
         display: none;
@@ -250,6 +251,10 @@
 
         <div class="customization-row">
           Element highlighting? <input type="checkbox" id="highlighting" /> <img id="highlighting-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+
+        <div class="customization-row">
+          <button id="reset-to-defaults">Reset all to defaults</button>
         </div>
       </div>
 
