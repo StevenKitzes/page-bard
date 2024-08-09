@@ -9,6 +9,8 @@ let arpeggiation = null;
 let attack = null;
 let decay = null;
 let oscillator = null;
+let noteDuration = null;
+let chordDuration = null;
 
 function songify(tabs) {
   const warningText = [];
@@ -24,6 +26,8 @@ function songify(tabs) {
   if (!attack) warningText.push('No attack speed found!');
   if (!decay) warningText.push('No decay speed found!');
   if (!oscillator) warningText.push('No oscillator found!');
+  if (!noteDuration) warningText.push('No note duration found!');
+  if (!chordDuration) warningText.push('No chord duration found!');
 
   if (warningText.length > 0) {
     alert(warningText.join(' '));
@@ -45,6 +49,8 @@ function songify(tabs) {
     attack: attack === 'default' ? 'random' : attack,
     decay: decay === 'default' ? 'random' : decay,
     oscillator: oscillator === 'default' ? 'random' : oscillator,
+    noteDuration: noteDuration === 'default' ? 'random' : noteDuration,
+    chordDuration: chordDuration === 'default' ? 'random' : chordDuration,
     highlighting: document.getElementById('highlighting').checked
   });
 
@@ -69,7 +75,9 @@ const settingControlIds = [
   'select-arpeggiation',
   'select-attack',
   'select-decay',
-  'select-oscillator'
+  'select-oscillator',
+  'select-note-duration',
+  'select-chord-duration'
 ];
 
 settingControlIds.forEach(id => {
@@ -158,6 +166,14 @@ const hintDefs = [
     hintCopy: "The oscillator type determines the sound of the synethsized computer 'instrument' that Page Bard will use to play a song.  The name of an oscillator corresponds to the way the sound wave looks when drawn out as a picture.  This is a pretty deep topic that goes beyond the scope of Page Bard, but just as an example, a 'triangle' oscillator will produce a nice smooth sound, while a 'square' oscillator will produce more of a buzz.  Play around and see what you like."
   },
   {
+    buttonId: 'note-duration-info-button',
+    hintCopy: "Use this setting to set the song's cadence, or how fast the song plays.  By default, Page Bard will determine the speed of the song based on characteristics of the page."
+  },
+  {
+    buttonId: 'chord-duration-info-button',
+    hintCopy: "When Page Bard is composing a song that uses a chord progression, you can determine how long the song will linger on each chord before moving to the next chord in the progression.  In other words, you can decide if the song spends a long time on the first chord before starting to play notes from the second chord; or spends a short time on one chord and quickly starts playing notes from the next.  See the help dialog for 'chord progression' to learn more."
+  },
+  {
     buttonId: 'highlighting-info-button',
     hintCopy: "Check this box if you want to turn highlighting on.  This will highlight each element on the page as it is being played.  It won't look super pretty but it can be educational or interesting to see which elements create which type of music.  It's important to note that a lot of elements don't have any visual representation in the browser (such as scripts, meta tags, style tags, etc).  So sometimes you'll hear music but won't see anything highlighted."
   }
@@ -185,6 +201,8 @@ document.getElementById('play').addEventListener('click', e => {
   attack = "random";
   decay = "random";
   oscillator = "random";
+  noteDuration = "random";
+  chordDuration = "random";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -203,6 +221,8 @@ document.getElementById('play-custom').addEventListener('click', e => {
   attack = document.getElementById('select-attack').value;
   decay = document.getElementById('select-decay').value;
   oscillator = document.getElementById('select-oscillator').value;
+  noteDuration = document.getElementById('select-note-duration').value;
+  chordDuration = document.getElementById('select-chord-duration').value;
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -221,6 +241,8 @@ document.getElementById('reset-to-defaults').addEventListener('click', e => {
   document.getElementById('select-attack').value = 'default';
   document.getElementById('select-decay').value = 'default';
   document.getElementById('select-oscillator').value = 'default';
+  document.getElementById('select-note-duration').value = 'default';
+  document.getElementById('select-chord-duration').value = 'default';
   document.getElementById('highlighting').checked = true;
 
   settingControlIds.forEach(id => {
