@@ -37,7 +37,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        margin: 12px;
+        margin: 10px;
         padding: 0 12px;
         width: calc(100% - 24px);
       }
@@ -141,6 +141,14 @@
             <option value="harmonic-minor">Harmonic Minor</option>
             <option value="byzantine">Byzantine</option>
           </select>&nbsp;<img id="scale-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-progression">
+            <option value="default">Choose chord progression . . .</option>
+            <option value="none">None (root chord only)</option>
+            <option value="blues">12-bar blues</option>
+          </select>&nbsp;<img id="progression-info-button" class="q-btn" src="icons/question.png" />
         </div>
   
         <div class="customization-row">

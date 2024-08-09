@@ -58,6 +58,66 @@ for (let chord = 1; chord < 7; chord++) {
 console.log('Page Bard using chords:');
 chords.forEach(chord => console.log(chord));
 
+const progressions = [
+  {
+    name: 'none',
+    progression: [
+      1
+    ]
+  },
+  {
+    name: 'blues',
+    progression: [
+      1, 4, 1, 1, 4, 4, 1, 1, 5, 4, 1, 5
+    ]
+  }
+];
+
+const notesPerChord = 16;
+
+function getProgression(requestedProgression) {
+  if (requestedProgression === 'none') return progressions[0];
+  if (requestedProgression === 'blues') return progressions[1];
+
+  const domain = document.location.hostname.split('.')[document.location.hostname.split('.').length - 2];
+  let domainValue = 0;
+  for (let i = 0; i < domain.length; i++) {
+    domainValue += domain.charCodeAt(i);
+  }
+  return progressions[domainValue % progressions.length];
+}
+
+function updateChordTones(chordTones, i, progression, scaleNotesAsAllNotesIndices) {
+  // give progression a tracking tracker if it doesn't already have one
+  if (progression.current === undefined) progression.current = 0;
+  if (progression.totalNotes === undefined) progression.totalNotes = notesPerChord * progression.progression.length;
+
+  if (i === 0) {
+    const chordNum = progression.progression[0];
+    chordTones.length = 0;
+    chordTones.push( ...chords[chordNum] );
+    homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
+    console.log('new chordTones:', chordTones, 'from 0th starting thingie');
+    console.log('chordNum', chordNum);
+    console.log('chords[chordNum]', chords[chordNum]);
+    console.log('chords', chords);
+    console.log('progression.progression', progression.progression);
+    console.log('progression.progression[0]', progression.progression[0]);
+    return;
+  }
+
+  if (i % progression.totalNotes === progression.current * notesPerChord) {
+    const chordNum = progression.progression[progression.current];
+    chordTones.length = 0;
+    chordTones.push( ...chords[chordNum] );
+    homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
+    progression.current++;
+    if (progression.current === progression.progression.length) progression.current = 0;
+    console.log('new chordTones:', chordTones);
+    return;
+  }
+}
+
 // should return an array of viable notes suitable for use with ToneJS
 function getScale(scaleNameArg) {
   const possibleScales = [
@@ -73,11 +133,11 @@ function getScale(scaleNameArg) {
   ]
   let scaleName = scaleNameArg;
   if (scaleNameArg === 'default') {
-    let domainValue = 0;
+    let hostnameValue = 0;
     for (let i = 0; i < document.location.hostname.length; i++) {
-      domainValue += document.location.hostname.charCodeAt(i);
+      hostnameValue += document.location.hostname.charCodeAt(i);
     }
-    scaleName = possibleScales[domainValue % possibleScales.length];
+    scaleName = possibleScales[hostnameValue % possibleScales.length];
     alert(`${document.location.hostname} feels to me like it should be played in the ${scaleName} mode.  Let's go!`);
   }
   const scale = [];
@@ -116,7 +176,10 @@ function getScale(scaleNameArg) {
   for (let i = 0; i < 7; i++) {
     scale.push(scale[i] + 24);
   }
-  return scale;
+  return {
+    scale,
+    scaleName
+  };
 }
 
 function valueFromFreqString(freq) {
@@ -368,6 +431,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
       console.log('with stopImage:', message.stopImage);
 
       console.log('with scale:', message.scale);
+      console.log('with chord progression:', message.progression);
       console.log('with randomization:', message.randomization);
       console.log('with rests:', message.rests);
       console.log('with rest duration:', message.restDuration);
@@ -387,6 +451,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
       if (!message.image) warningText.push('No play image found!');
       if (!message.stopImage) warningText.push('No stop image found!');
       if (!message.scale) warningText.push('No scale found!');
+      if (!message.progression) warningText.push('No chord progression found!');
       if (!message.randomization) warningText.push('No randomization factor found!');
       if (!message.rests) warningText.push('No rests factor found!');
       if (!message.restDuration) warningText.push('No rest duration found!');
@@ -413,6 +478,18 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
 
       const restDurationFactor = getRestDurationFactor(message.restDuration);
 
+      const { scale: scaleNotesAsAllNotesIndices, scaleName } = getScale(message.scale);
+      const progression = getProgression(message.progression);
+      console.log('using chord progression', progression.name);
+      const chordTones = [];
+      console.log('got',scaleNotesAsAllNotesIndices,'from getScale');
+      // scaleNotesAsAllNotesIndices.forEach((t) => console.log('scale note', t, allNotes[t]));
+      // chordTones.forEach((t, i) => console.log('chord tone', t, allNotes[scaleNotesAsAllNotesIndices[t]]));
+
+      const oscillator = getOscillator(message.oscillator);
+      const attack = getAttack(message.attack);
+      const decay = getDecay(message.decay);
+  
       console.info(`Total frequency factor: ${frequencyFactor}
         Rest threshold: ${restsThreshold}
         Trills threshold: ${trillsThreshold}
@@ -421,6 +498,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         Arpeggiation (up) threshold: ${arpeggiationUpThreshold}
         Arpeggiation (down) threshold: ${arpeggiationDownThreshold}`)
 
+      // create play button and info pane
       const playButton = document.createElement('img');
       playButton.src = message.image;
       playButton.style.cursor = "pointer";
@@ -428,23 +506,49 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
       playButton.style.right = "8px";
       playButton.style.top = "8px";
       playButton.style.zIndex = "2147483647";
+
+      const infoPane = document.createElement('div');
+      infoPane.style.backgroundColor = "orange";
+      infoPane.style.border = "3px solid black";
+      infoPane.style.borderRadius = "2em";
+      infoPane.style.color = "black";
+      infoPane.style.display = "none";
+      infoPane.style.fontWeight = "bold";
+      infoPane.style.padding = "1em";
+      infoPane.style.position = "fixed";
+      infoPane.style.right = "8px";
+      infoPane.style.top = "8px";
+      infoPane.style.zIndex = "2147483646";
+      infoPane.innerHTML = `<div style="font-size: 2em">Page Bard</div><br />
+        <div style="font-size: 1.2em; margin-bottom: 0.5em">Song properties used to write this page's song:</div>
+        Scale/mode: ${scaleName}<br />
+        Chord progression: ${progression.name}<br />
+        Randomization/frequency factor: ${message.randomization}<br />
+        Rest frequency: ${message.rests}<br />
+        Maximum rest duration: ${message.restDuration}<br />
+        Trill frequency: ${message.trills}<br />
+        Scale run frequency: ${message.scaleRuns}<br />
+        Arpeggio frequency: ${message.arpeggiation}<br />
+        Attack: ${message.attack} (${attack})<br />
+        Decay: ${message.decay} (${decay})<br />
+        Oscillator/instrument type: ${oscillator}<br />
+        Element/note source highlighting: ${message.highlighting}`;
+  
       document.body.appendChild(playButton);
+      document.body.appendChild(infoPane);
       
+      playButton.addEventListener('mouseenter', e => {
+        infoPane.style.display = "block";
+      })
+      playButton.addEventListener('mouseout', e => {
+        infoPane.style.display = "none";
+      })
       playButton.addEventListener('click', e => {
         if (window.pageBardPlayed) return;
         window.pageBardPlayed = true;
         
         playButton.src = message.stopImage;
         
-        const scaleNotesAsAllNotesIndices = getScale(message.scale);
-        let chordTones = chords[1];
-        console.log('got',scaleNotesAsAllNotesIndices,'from getScale');
-        // scaleNotesAsAllNotesIndices.forEach((t) => console.log('scale note', t, allNotes[t]));
-        // chordTones.forEach((t, i) => console.log('chord tone', t, allNotes[scaleNotesAsAllNotesIndices[t]]));
-
-        const oscillator = getOscillator(message.oscillator);
-        const attack = getAttack(message.attack);
-        const decay = getDecay(message.decay);
         const synth = new window.Tone.PolySynth(Tone.Synth, {
           'oscillator': {
             'type': oscillator
@@ -533,52 +637,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         
         // create tones for all the notes in songNotes
         for (let j = 0; j < composition.length; j++) {
-          // when we hit the 100th note, shift the key
-          if (j % 192 === 0) {
-            const chordNum = 1;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 16) {
-            const chordNum = 4;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 32) {
-            const chordNum = 1;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 64) {
-            const chordNum = 4;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 96) {
-            const chordNum = 1;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 128) {
-            const chordNum = 5;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 144) {
-            const chordNum = 4;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 160) {
-            const chordNum = 1;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
-          if (j % 192 === 176) {
-            const chordNum = 5;
-            chordTones = chords[chordNum];
-            homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
-          }
+          updateChordTones(chordTones, j, progression, scaleNotesAsAllNotesIndices);
 
           // always increment time
           t += 0.25;

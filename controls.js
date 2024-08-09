@@ -1,4 +1,5 @@
 let scale = null;
+let progression = null;
 let randomization = null;
 let rests = null;
 let restDuration = null;
@@ -13,6 +14,7 @@ function songify(tabs) {
   const warningText = [];
 
   if (!scale) warningText.push('No scale found!');
+  if (!progression) warningText.push('No chord progression found!');
   if (!randomization) warningText.push('No randomization factor found!');
   if (!rests) warningText.push('No rests factor found!');
   if (!restDuration) warningText.push('No rest duration found!');
@@ -33,6 +35,7 @@ function songify(tabs) {
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
     scale,
+    progression: progression === 'default' ? 'random' : progression,
     randomization: randomization === 'default' ? 'normal' : randomization,
     rests: rests === 'default' ? 'normal' : rests,
     restDuration: restDuration === 'default' ? 'long' : restDuration,
@@ -57,6 +60,7 @@ function hideMenu() {
 
 const settingControlIds = [
   'select-mode',
+  'select-progression',
   'select-randomization',
   'select-rests',
   'select-rest-duration',
@@ -114,6 +118,10 @@ const hintDefs = [
     hintCopy: "Choose the scale for Page Bard to use when writing this page as a song.  By default, Page Bard will choose a scale based on characteristics of the page."
   },
   {
+    buttonId: 'progression-info-button',
+    hintCopy: "Choose the chord progression you'd like Page Bard to follow when writing a song for this page.  The chord progression often determins the type or genre of song you'll get.  For example, the blues are associated with a particular chord progression, while jazz is typified by another.  The details can get hairy, so feel free to do some outside research if you'd like to know more, but here you can select, in broad strokes, the loose feel you'd like Page Bard to shoot for.  By default, Page Bard will choose a chord progression based off of characteristics of the page."
+  },
+  {
     buttonId: 'randomization-info-button',
     hintCopy: "The randomization factor determines the overall likelihood of special musical features being used in the page's composition.  In other words, how often will Page Bard choose arpeggiation, scale runs, rests, and other features besides simple musical notes?  Higher factors mean more special features; lower factors mean more plain notes."
   },
@@ -167,6 +175,7 @@ document.getElementById('hint-modal').addEventListener('click', e => {
 
 document.getElementById('play').addEventListener('click', e => {
   scale = "default";
+  progression = "random";
   randomization = "normal";
   rests = "normal";
   restDuration = "long";
@@ -184,6 +193,7 @@ document.getElementById('play').addEventListener('click', e => {
 
 document.getElementById('play-custom').addEventListener('click', e => {
   scale = document.getElementById('select-mode').value;
+  progression = document.getElementById('select-progression').value;
   randomization = document.getElementById('select-randomization').value;
   rests = document.getElementById('select-rests').value;
   restDuration = document.getElementById('select-rest-duration').value;
@@ -201,6 +211,7 @@ document.getElementById('play-custom').addEventListener('click', e => {
 
 document.getElementById('reset-to-defaults').addEventListener('click', e => {
   document.getElementById('select-mode').value = 'default';
+  document.getElementById('select-progression').value = 'default';
   document.getElementById('select-randomization').value = 'default';
   document.getElementById('select-rests').value = 'default';
   document.getElementById('select-rest-duration').value = 'default';
