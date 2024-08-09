@@ -158,7 +158,6 @@ function getScale(scaleNameArg) {
       hostnameValue += document.location.hostname.charCodeAt(i);
     }
     scaleName = possibleScales[hostnameValue % possibleScales.length];
-    alert(`${document.location.hostname} feels to me like it should be played in the ${scaleName} mode.  Let's go!`);
   }
   const scale = [];
   switch (scaleName) {
@@ -290,8 +289,8 @@ function getOscillator(oscillatorString) {
   }
 }
 
-function playHomeNote(synth, now, t, highlightDetails, noteDuration) {
-  const toneDuration = Math.max((Math.random() * 8 * noteDuration), noteDuration);
+function playHomeNote(synth, now, t, highlightDetails, noteDuration, chordDuration) {
+  const toneDuration = Math.max((Math.random() * 2 * chordDuration * noteDuration), noteDuration);
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -300,11 +299,11 @@ function playHomeNote(synth, now, t, highlightDetails, noteDuration) {
   synth.triggerRelease(allNotes[homeNote], now + t + toneDuration);
 }
 
-function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration) {
+function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration, chordDuration) {
   const tone = Math.floor(t % chordTones.length);
   const toneName = allNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
   // console.log(t, 'measure end using chord tone', toneName);
-  const toneDuration = Math.max((Math.random() * 8 * noteDuration), noteDuration);
+  const toneDuration = Math.max((Math.random() * 2 * chordDuration * noteDuration), noteDuration);
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -313,12 +312,12 @@ function playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, h
   synth.triggerRelease(toneName, now + t + toneDuration);
 }
 
-function playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails, noteDuration) {
+function playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails, noteDuration, chordDuration) {
   const shift = t % 2 > 1 ? 1 : -1;
   const mainToneName = allNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
   const offToneName = allNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
   // console.log(t, 'trills off', mainToneName);
-  const toneDuration = Math.max((Math.random() * 8 * noteDuration), 2 * noteDuration);
+  const toneDuration = Math.max((Math.random() * 2 * chordDuration * noteDuration), 2 * noteDuration);
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -672,20 +671,21 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
 
           // always increment time
           t += noteDuration;
+          t = +(t.toFixed(2));
 
           // if frequency factor is 0 (due to error or user manually avoiding feature usage) then skip everything and just do notes
           if (frequencyFactor !== 0) {
 
             // if we are at the end of every other measure, must play root tone (my arbitrary decision)
-            if (t % 2 === 0) {
+            if (t % (2 * chordDuration * noteDuration) === 0) {
               scaleNoteCount++;
-              playHomeNote(synth, now, t, highlightDetails, noteDuration);
+              playHomeNote(synth, now, t, highlightDetails, noteDuration, chordDuration);
               continue;
             }
             // if we are at the end of a measure, must play a chord tone
-            if (t % 1 === 0) {
+            if (t % (chordDuration * noteDuration) === 0) {
               chordToneCount++;
-              playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration);
+              playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration, chordDuration);
               continue;
             }
             
@@ -705,7 +705,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
             // trill
             if (composition[j] % frequencyFactor < trillsThreshold) {
               trillCount++;
-              playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails, noteDuration);
+              playTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails, noteDuration, chordDuration);
               // t += noteDuration;
               // j++;
               continue;
@@ -745,7 +745,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
             // chord tone
             if (composition[j] % frequencyFactor < chordToneThreshold) {
               chordToneCount++;
-              playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration);
+              playChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration, chordDuration);
               continue;
             }
 
