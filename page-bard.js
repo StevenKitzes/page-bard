@@ -87,24 +87,24 @@ function getProgression(requestedProgression) {
 
 function getChordDuration(durationString) {
   switch (durationString) {
-    case 'shortest': return 2;
-    case 'short': return 4;
-    case 'medium': return 8;
+    case 'shortest': return 4;
+    case 'short': return 8;
+    case 'medium': return 12;
     case 'long': return 16;
-    case 'longest': return 32;
+    case 'longest': return 24;
   }
   return (4 + ((document.location.href.length % 7) * 2));
 }
 
 function getNoteDuration(durationString) {
   switch (durationString) {
-    case 'shortest': return 0.07;
-    case 'short': return 0.12;
+    case 'shortest': return 0.12;
+    case 'short': return 0.16;
     case 'medium': return 0.2;
     case 'long': return 0.25;
     case 'longest': return 0.33;
   }
-  return (7 + (document.location.href.length % 27)) / 100;
+  return (12 + (document.location.href.length % 22)) / 100;
 }
 
 function updateChordTones(chordTones, i, progression, scaleNotesAsAllNotesIndices, chordDuration) {
@@ -771,7 +771,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           ${scaleRunCount} scale runs
           ${arpeggioCount} arpeggios`);
         
-        const totalSeconds = (nodes.length / 4) + cumulativeRestCount;
+        const totalSeconds = (nodes.length * noteDuration) + cumulativeRestCount;
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
         console.log('created song from', nodes.length, 'elements, song will play for about', minutes, 'minutes and ', seconds, 'seconds');
