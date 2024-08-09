@@ -1,4 +1,5 @@
 let scale = null;
+let progression = null;
 let randomization = null;
 let rests = null;
 let restDuration = null;
@@ -8,11 +9,14 @@ let arpeggiation = null;
 let attack = null;
 let decay = null;
 let oscillator = null;
+let noteDuration = null;
+let chordDuration = null;
 
 function songify(tabs) {
   const warningText = [];
 
   if (!scale) warningText.push('No scale found!');
+  if (!progression) warningText.push('No chord progression found!');
   if (!randomization) warningText.push('No randomization factor found!');
   if (!rests) warningText.push('No rests factor found!');
   if (!restDuration) warningText.push('No rest duration found!');
@@ -22,6 +26,8 @@ function songify(tabs) {
   if (!attack) warningText.push('No attack speed found!');
   if (!decay) warningText.push('No decay speed found!');
   if (!oscillator) warningText.push('No oscillator found!');
+  if (!noteDuration) warningText.push('No note duration found!');
+  if (!chordDuration) warningText.push('No chord duration found!');
 
   if (warningText.length > 0) {
     alert(warningText.join(' '));
@@ -33,6 +39,7 @@ function songify(tabs) {
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
     scale,
+    progression: progression === 'default' ? 'random' : progression,
     randomization: randomization === 'default' ? 'normal' : randomization,
     rests: rests === 'default' ? 'normal' : rests,
     restDuration: restDuration === 'default' ? 'long' : restDuration,
@@ -42,6 +49,8 @@ function songify(tabs) {
     attack: attack === 'default' ? 'random' : attack,
     decay: decay === 'default' ? 'random' : decay,
     oscillator: oscillator === 'default' ? 'random' : oscillator,
+    noteDuration: noteDuration === 'default' ? 'random' : noteDuration,
+    chordDuration: chordDuration === 'default' ? 'random' : chordDuration,
     highlighting: document.getElementById('highlighting').checked
   });
 
@@ -57,6 +66,7 @@ function hideMenu() {
 
 const settingControlIds = [
   'select-mode',
+  'select-progression',
   'select-randomization',
   'select-rests',
   'select-rest-duration',
@@ -65,8 +75,11 @@ const settingControlIds = [
   'select-arpeggiation',
   'select-attack',
   'select-decay',
-  'select-oscillator'
+  'select-oscillator',
+  'select-note-duration',
+  'select-chord-duration'
 ];
+
 settingControlIds.forEach(id => {
   const control = document.getElementById(id);
   control.addEventListener('change', e => {
@@ -75,12 +88,14 @@ settingControlIds.forEach(id => {
     });
   });
 });
+
 const highlightingControl = document.getElementById('highlighting');
 highlightingControl.addEventListener('change', e => {
   browser.storage.sync.set({
     highlighting: highlightingControl.checked
   });
 });
+
 setTimeout(() => {
   document.getElementById('loading-modal').style.display = 'none';
   settingControlIds.forEach(id => {
@@ -109,6 +124,10 @@ const hintDefs = [
   {
     buttonId: 'scale-info-button',
     hintCopy: "Choose the scale for Page Bard to use when writing this page as a song.  By default, Page Bard will choose a scale based on characteristics of the page."
+  },
+  {
+    buttonId: 'progression-info-button',
+    hintCopy: "Choose the chord progression you'd like Page Bard to follow when writing a song for this page.  The chord progression often determins the type or genre of song you'll get.  For example, the blues are associated with a particular chord progression, while jazz is typified by another.  The details can get hairy, so feel free to do some outside research if you'd like to know more, but here you can select, in broad strokes, the loose feel you'd like Page Bard to shoot for.  By default, Page Bard will choose a chord progression based off of characteristics of the page."
   },
   {
     buttonId: 'randomization-info-button',
@@ -147,6 +166,14 @@ const hintDefs = [
     hintCopy: "The oscillator type determines the sound of the synethsized computer 'instrument' that Page Bard will use to play a song.  The name of an oscillator corresponds to the way the sound wave looks when drawn out as a picture.  This is a pretty deep topic that goes beyond the scope of Page Bard, but just as an example, a 'triangle' oscillator will produce a nice smooth sound, while a 'square' oscillator will produce more of a buzz.  Play around and see what you like."
   },
   {
+    buttonId: 'note-duration-info-button',
+    hintCopy: "Use this setting to set the song's cadence, or how fast the song plays.  By default, Page Bard will determine the speed of the song based on characteristics of the page."
+  },
+  {
+    buttonId: 'chord-duration-info-button',
+    hintCopy: "When Page Bard is composing a song that uses a chord progression, you can determine how long the song will linger on each chord before moving to the next chord in the progression.  In other words, you can decide if the song spends a long time on the first chord before starting to play notes from the second chord; or spends a short time on one chord and quickly starts playing notes from the next.  See the help dialog for 'chord progression' to learn more."
+  },
+  {
     buttonId: 'highlighting-info-button',
     hintCopy: "Check this box if you want to turn highlighting on.  This will highlight each element on the page as it is being played.  It won't look super pretty but it can be educational or interesting to see which elements create which type of music.  It's important to note that a lot of elements don't have any visual representation in the browser (such as scripts, meta tags, style tags, etc).  So sometimes you'll hear music but won't see anything highlighted."
   }
@@ -164,6 +191,7 @@ document.getElementById('hint-modal').addEventListener('click', e => {
 
 document.getElementById('play').addEventListener('click', e => {
   scale = "default";
+  progression = "random";
   randomization = "normal";
   rests = "normal";
   restDuration = "long";
@@ -173,6 +201,8 @@ document.getElementById('play').addEventListener('click', e => {
   attack = "random";
   decay = "random";
   oscillator = "random";
+  noteDuration = "random";
+  chordDuration = "random";
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -181,6 +211,7 @@ document.getElementById('play').addEventListener('click', e => {
 
 document.getElementById('play-custom').addEventListener('click', e => {
   scale = document.getElementById('select-mode').value;
+  progression = document.getElementById('select-progression').value;
   randomization = document.getElementById('select-randomization').value;
   rests = document.getElementById('select-rests').value;
   restDuration = document.getElementById('select-rest-duration').value;
@@ -190,8 +221,37 @@ document.getElementById('play-custom').addEventListener('click', e => {
   attack = document.getElementById('select-attack').value;
   decay = document.getElementById('select-decay').value;
   oscillator = document.getElementById('select-oscillator').value;
+  noteDuration = document.getElementById('select-note-duration').value;
+  chordDuration = document.getElementById('select-chord-duration').value;
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
     .catch(reportError);
-})
+});
+
+document.getElementById('reset-to-defaults').addEventListener('click', e => {
+  document.getElementById('select-mode').value = 'default';
+  document.getElementById('select-progression').value = 'default';
+  document.getElementById('select-randomization').value = 'default';
+  document.getElementById('select-rests').value = 'default';
+  document.getElementById('select-rest-duration').value = 'default';
+  document.getElementById('select-trills').value = 'default';
+  document.getElementById('select-scale-runs').value = 'default';
+  document.getElementById('select-arpeggiation').value = 'default';
+  document.getElementById('select-attack').value = 'default';
+  document.getElementById('select-decay').value = 'default';
+  document.getElementById('select-oscillator').value = 'default';
+  document.getElementById('select-note-duration').value = 'default';
+  document.getElementById('select-chord-duration').value = 'default';
+  document.getElementById('highlighting').checked = true;
+
+  settingControlIds.forEach(id => {
+    const control = document.getElementById(id);
+    browser.storage.sync.set({
+      [id]: control.value
+    });
+  });  
+  browser.storage.sync.set({
+    highlighting: document.getElementById('highlighting').checked
+  });
+});

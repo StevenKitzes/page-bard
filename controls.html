@@ -42,9 +42,10 @@
         align-items: center;
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
-        margin: 12px;
-        width: 100%;
+        justify-content: space-between;
+        margin: 10px;
+        padding: 0 12px;
+        width: calc(100% - 24px);
       }
       .hidden {
         display: none;
@@ -61,6 +62,9 @@
         padding: 8px;
       }
       #customization {
+        display: flex;
+        flex-direction: row;
+        justify-content:space-evenly;
         margin-bottom: 0px;
         margin-top: 4px;
       }
@@ -131,7 +135,7 @@
         <img src="icons/play-button-48.png" /> Let Page Bard compose on its own.
       </div>
       <hr style="width: 80%" />
-      <p id="customization">Some customization is available.</p>
+      <p id="customization">Some customization is available. <button id="reset-to-defaults">Reset all to defaults</button></p>
 
       <div id="customization-controls">
         <div class="customization-row">
@@ -147,6 +151,14 @@
             <option value="harmonic-minor">Harmonic Minor</option>
             <option value="byzantine">Byzantine</option>
           </select>&nbsp;<img id="scale-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-progression">
+            <option value="default">Choose chord progression . . .</option>
+            <option value="none">No chord progression</option>
+            <option value="blues">12-bar blues progression</option>
+          </select>&nbsp;<img id="progression-info-button" class="q-btn" src="icons/question.png" />
         </div>
   
         <div class="customization-row">
@@ -223,25 +235,47 @@
         <div class="customization-row">
           <select id="select-attack">
             <option value="default">Choose attack speed . . .</option>
-            <option value="random">Random</option>
-            <option value="slowest">Slowest</option>
-            <option value="slow">Slow</option>
-            <option value="medium">Medium</option>
-            <option value="fast">Fast</option>
-            <option value="fastest">Fastest</option>
+            <option value="random">Random attack</option>
+            <option value="slowest">Slowest attack</option>
+            <option value="slow">Slow attack</option>
+            <option value="medium">Medium attack</option>
+            <option value="fast">Fast attack</option>
+            <option value="fastest">Fastest attack</option>
           </select>&nbsp;<img id="attack-info-button" class="q-btn" src="icons/question.png" />
         </div>
 
         <div class="customization-row">
           <select id="select-decay">
             <option value="default">Choose decay speed . . .</option>
-            <option value="random">Random</option>
-            <option value="slowest">Slowest</option>
-            <option value="slow">Slow</option>
-            <option value="medium">Medium</option>
-            <option value="fast">Fast</option>
-            <option value="fastest">Fastest</option>
+            <option value="random">Random decay</option>
+            <option value="slowest">Slowest decay</option>
+            <option value="slow">Slow decay</option>
+            <option value="medium">Medium decay</option>
+            <option value="fast">Fast decay</option>
+            <option value="fastest">Fastest decay</option>
           </select>&nbsp;<img id="decay-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+        
+        <div class="customization-row">
+          <select id="select-note-duration">
+            <option value="default">Choose note duration . . .</option>
+            <option value="shortest">Shortest notes</option>
+            <option value="short">Short notes</option>
+            <option value="medium">Medium notes</option>
+            <option value="long">Long notes</option>
+            <option value="longest">Longest notes</option>
+          </select>&nbsp;<img id="note-duration-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+        
+        <div class="customization-row">
+          <select id="select-chord-duration">
+            <option value="default">Choose chord duration . . .</option>
+            <option value="shortest">Shortest chord duration</option>
+            <option value="short">Short chord duration</option>
+            <option value="medium">Medium chord duration</option>
+            <option value="long">Long chord duration</option>
+            <option value="longest">Longest chord duration</option>
+          </select>&nbsp;<img id="chord-duration-info-button" class="q-btn" src="icons/question.png" />
         </div>
 
         <div class="customization-row">
