@@ -70,12 +70,59 @@ const progressions = [
     progression: [
       1, 4, 1, 1, 4, 4, 1, 1, 5, 4, 1, 5
     ]
+  },
+  {
+    name: 'jazz',
+    progression: [
+      2, 5, 1, 1
+    ]
+  },
+  {
+    name: 'pop',
+    progression: [
+      1, 6, 4, 5
+    ]
+  },
+  {
+    name: 'alt-pop',
+    progression: [
+      1, 5, 6, 4
+    ]
+  },
+  {
+    name: 'andalusian',
+    progression: [
+      6, 5, 4, 3
+    ]
+  },
+  {
+    name: 'ballad',
+    progression: [
+      1, 6, 3, 4
+    ]
+  },
+  {
+    name: 'pop-rock',
+    progression: [
+      6, 5, 1, 4
+    ]
+  },
+  {
+    name: 'deterministic',
+    progression: document.location.hostname.split('.')[document.location.hostname.split('.').length - 2].split('').map(char => ((char.charCodeAt(0) % 7) + 1))
   }
 ];
 
 function getProgression(requestedProgression) {
   if (requestedProgression === 'none') return progressions[0];
   if (requestedProgression === 'blues') return progressions[1];
+  if (requestedProgression === 'jazz') return progressions[2];
+  if (requestedProgression === 'pop') return progressions[3];
+  if (requestedProgression === 'alt-pop') return progressions[4];
+  if (requestedProgression === 'andalusian') return progressions[5];
+  if (requestedProgression === 'ballad') return progressions[6];
+  if (requestedProgression === 'pop-rock') return progressions[7];
+  if (requestedProgression === 'deterministic') return progressions[8];
 
   const domain = document.location.hostname.split('.')[document.location.hostname.split('.').length - 2];
   let domainValue = 0;
@@ -104,7 +151,7 @@ function getNoteDuration(durationString) {
     case 'long': return 0.25;
     case 'longest': return 0.33;
   }
-  return (12 + (document.location.href.length % 22)) / 100;
+  return (12 + (document.getElementsByTagName('body')[0].outerHTML.length % 22)) / 100;
 }
 
 function updateChordTones(chordTones, i, progression, scaleNotesAsAllNotesIndices, chordDuration) {
@@ -133,7 +180,6 @@ function updateChordTones(chordTones, i, progression, scaleNotesAsAllNotesIndice
     homeNote = scaleNotesAsAllNotesIndices[6 + chordNum];
     progression.current++;
     if (progression.current === progression.progression.length) progression.current = 0;
-    console.log('new chordTones:', chordTones);
     return;
   }
 }
@@ -492,6 +538,8 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         console.log('No extension message errors.');
       }
 
+      const highlightTimers = [];
+
       const restsThreshold = valueFromFreqString(message.rests);
       const trillsThreshold = restsThreshold + valueFromFreqString(message.trills);
       const scaleRunUpThreshold = trillsThreshold + valueFromFreqString(message.scaleRuns) / 2;
@@ -597,6 +645,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         
         playButton.addEventListener('click', e => {
           synth.dispose();
+          highlightTimers.forEach(timer => clearTimeout(timer));
           playButton.style.display = "none";
           
           const pageBardHint = document.createElement('div');
@@ -619,7 +668,8 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         });
         
         // get all document nodes
-        const nodes = document.querySelectorAll('*');
+        const nodes = [];
+        document.querySelectorAll('*').forEach(n => nodes.push(n));
         const highlightDetails = [];
 
         const composition = [];
@@ -642,27 +692,36 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
           // otherwise push this note to songNotes
           composition.push(nodeValue);
         }
+
+        // add closing chord tones to make the song feel like it has an end,
+        // with fake nodes to accommodate song functions expecting nodes for composition notes
+        for (let l = 0; l < chordDuration; l++) {
+          const fakeNode = document.createElement('fake');
+          document.getElementsByTagName('body')[0].appendChild(fakeNode);
+          nodes.push(fakeNode);
+        }
+        for (let l = 0; l < chordDuration; l++) composition.push(chordToneThreshold - 1);
         
-        // replace excessive repeats with a trill
+        // replace excessive help alleviate multiple same composition elements in a row
         for (let j = 0; j < composition.length - 3; j++) {
           if (
-            composition[j] % scaleNotesAsAllNotesIndices.length === composition[j+1] % scaleNotesAsAllNotesIndices.length &&
-            composition[j+1] % scaleNotesAsAllNotesIndices.length === composition[j+2] % scaleNotesAsAllNotesIndices.length &&
-            composition[j+2] % scaleNotesAsAllNotesIndices.length === composition[j+3] % scaleNotesAsAllNotesIndices.length
+            composition[j] % frequencyFactor === composition[j+1] % frequencyFactor &&
+            composition[j+1] % frequencyFactor === composition[j+2] % frequencyFactor &&
+            composition[j+2] % frequencyFactor === composition[j+3] % frequencyFactor
           ) {
             composition[j+1] += j % 2 === 0 ? 1 : -1;
           }
 
-          while (
-            (composition[j] % scaleNotesAsAllNotesIndices.length) -
-            (composition[j+1] % scaleNotesAsAllNotesIndices.length) >
-            8
-          ) composition[j+1] += 8;
-          while (
-            (composition[j+1] % scaleNotesAsAllNotesIndices.length) -
-            (composition[j] % scaleNotesAsAllNotesIndices.length) >
-            8
-          ) composition[j] += 8;
+          // while (
+          //   (composition[j] % scaleNotesAsAllNotesIndices.length) -
+          //   (composition[j+1] % scaleNotesAsAllNotesIndices.length) >
+          //   8
+          // ) composition[j+1] += 8;
+          // while (
+          //   (composition[j+1] % scaleNotesAsAllNotesIndices.length) -
+          //   (composition[j] % scaleNotesAsAllNotesIndices.length) >
+          //   8
+          // ) composition[j] += 8;
         }
         
         // create tones for all the notes in songNotes
@@ -776,11 +835,13 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
         const seconds = totalSeconds % 60;
         console.log('created song from', nodes.length, 'elements, song will play for about', minutes, 'minutes and ', seconds, 'seconds');
 
+        console.log('composition length:', composition.length, 'nodes length:', nodes.length, 'highlight details length:', highlightDetails.length);
+
         if (message.highlighting) {
           // for each highlighting detail
           for (let i = 0; i < highlightDetails.length; i++) {
             // highlight the item and set a timer for de-highlighting
-            setTimeout(() => {
+            const thisTimeout = setTimeout(() => {
               const initialTransition = nodes[i].style.transition;
               const initialBackground = nodes[i].style.backgroundColor;
               const initialFilter = nodes[i].style.filter;
@@ -791,6 +852,7 @@ function playArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now,
                 nodes[i].style.backgroundColor = initialBackground;
               }, highlightDetails[i].duration * 500);
             }, highlightDetails[i].start * 1000);
+            highlightTimers.push(thisTimeout);
           }
         }
 
