@@ -151,7 +151,14 @@ function getNoteDuration(durationString) {
     case 'long': return 0.25;
     case 'longest': return 0.33;
   }
-  return (12 + (document.getElementsByTagName('body')[0].outerHTML.length % 22)) / 100;
+
+  const domain = document.location.hostname.split('.')[document.location.hostname.split('.').length - 2];
+  let domainValue = 0;
+  for (let i = 0; i < domain.length; i++) {
+    domainValue += domain.charCodeAt(i);
+  }
+
+  return (12 + (domainValue % 22)) / 100;
 }
 
 function updateChordTones(chordTones, i, progression, scaleNotesAsAllNotesIndices, chordDuration) {
