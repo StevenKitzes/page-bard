@@ -711,7 +711,7 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         progressBar.style.right = 0;
         progressBar.style.bottom = 0;
         progressBar.style.width = '100%';
-        progressBar.style.height = '1em';
+        progressBar.style.height = '8px';
     
         document.body.appendChild(playButton);
         document.body.appendChild(infoPane);
