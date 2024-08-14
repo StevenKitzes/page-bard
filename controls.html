@@ -30,6 +30,7 @@
         border: 2px solid black;
         display: flex;
         flex-direction: row;
+        font-size: 1.2em;
         justify-content: center;
         margin: 4px auto;
         width: 100%;
@@ -62,6 +63,7 @@
         padding: 8px;
       }
       #customization {
+        align-items: center;
         display: flex;
         flex-direction: row;
         justify-content:space-evenly;
@@ -102,6 +104,15 @@
         width: 100vw;
         z-index: 10;
       }
+      #keep-short {
+        margin: 0 1em;
+      }
+      #keep-short-span {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        /* justify-content: space-between; */
+      }
       #loading-modal {
         background-color: #663300;
         border: 3px solid orange;
@@ -135,7 +146,7 @@
         <img src="icons/play-button-48.png" /> Let Page Bard compose on its own.
       </div>
       <hr style="width: 80%" />
-      <p id="customization">Some customization is available. <button id="reset-to-defaults">Reset all to defaults</button></p>
+      <p id="customization">Some customizations available. <button id="reset-to-defaults">Reset all defaults</button> <span id='keep-short-span'>Keep short: <input type="checkbox" id="keep-short" /> <img id="keep-short-info-button" class="q-btn" src="icons/question.png" /></span></p>
 
       <div id="customization-controls">
         <div class="customization-row">

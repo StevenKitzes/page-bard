@@ -1,3 +1,4 @@
+let keepShort = null;
 let scale = null;
 let progression = null;
 let randomization = null;
@@ -11,6 +12,9 @@ let decay = null;
 let oscillator = null;
 let noteDuration = null;
 let chordDuration = null;
+
+const keepShortControl = document.getElementById('keep-short');
+const highlightingControl = document.getElementById('highlighting');
 
 function songify(tabs) {
   const warningText = [];
@@ -38,6 +42,7 @@ function songify(tabs) {
     command: "songify",
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
+    keepShort: keepShortControl.checked,
     scale,
     progression: progression === 'default' ? 'random' : progression,
     randomization: randomization === 'default' ? 'normal' : randomization,
@@ -51,7 +56,7 @@ function songify(tabs) {
     oscillator: oscillator === 'default' ? 'random' : oscillator,
     noteDuration: noteDuration === 'default' ? 'random' : noteDuration,
     chordDuration: chordDuration === 'default' ? 'random' : chordDuration,
-    highlighting: document.getElementById('highlighting').checked
+    highlighting: highlightingControl.checked
   });
 
   hideMenu();
@@ -89,7 +94,11 @@ settingControlIds.forEach(id => {
   });
 });
 
-const highlightingControl = document.getElementById('highlighting');
+keepShortControl.addEventListener('change', e => {
+  browser.storage.sync.set({
+    keepShort: keepShortControl.checked
+  });
+});
 highlightingControl.addEventListener('change', e => {
   browser.storage.sync.set({
     highlighting: highlightingControl.checked
@@ -109,14 +118,25 @@ setTimeout(() => {
   });
   browser.storage.sync.get('highlighting').then(value => {
     if (!value.highlighting) {
-      document.getElementById('highlighting').checked = false;
+      highlightingControl.checked = false;
       return;
     }
-    document.getElementById('highlighting').checked = value.highlighting;
+    highlightingControl.checked = value.highlighting;
+  });
+  browser.storage.sync.get('keepShort').then(value => {
+    if (!value.keepShort) {
+      keepShortControl.checked = false;
+      return;
+    }
+    keepShortControl.checked = value.keepShort;
   });
 }, 250);
 
 const hintDefs = [
+  {
+    buttonId: 'keep-short-info-button',
+    hintCopy: "If you check this box, Page Bard will limit song length to somewhere near or less than 5 minutes.  By default, the song length will simply correlate to the amount of information contained in a web page.  If the page is very large, or has lots of hidden information behind the scenes, a page's song can become arbitrarily (extremely) long.  In early tests of Page Bard, songs were observed having lengths of over 20 minutes for very complex web pages.  But they could get even longer!"
+  },
   {
     buttonId: 'page-bard-info',
     hintCopy: "Welcome to Page Bard, the browser extension that will play (almost any<sup>1</sup>) website you visit as a song!  Page Bard reads the code that defines a website's structure (the HTML DOM) and generates a song from it.  Songs are composed deterministically, meaning you get the same song for the same page every time<sup>2</sup>.  It uses page elements and the website address to generate everything from musical notes, to song pacing, to the scale in which a song will be composed.<br /><br />When you activate Page Bard from this extension menu, it will place an orange play button on your page in the upper right hand corner.  You can click this to play the song, then click again to stop if you want.  To listen again, you must refresh the page and start again.<br /><br /><sup>1</sup> - Some websites intentionally or incidentally interfere with Page Bard's ability to play music.  If you don't see the orange play button appear, or you hear no music, or you hear one long, annoying tone, it means the current site is blocking Page Bard from making music.<br /><br /><sup>2</sup> - If a page is different every time you view it (like a page with ads or social media feeds that change all the time) then parts of the song will change to reflect that."
@@ -230,6 +250,7 @@ document.getElementById('play-custom').addEventListener('click', e => {
 });
 
 document.getElementById('reset-to-defaults').addEventListener('click', e => {
+  keepShortControl.checked = true;
   document.getElementById('select-mode').value = 'default';
   document.getElementById('select-progression').value = 'default';
   document.getElementById('select-randomization').value = 'default';
@@ -243,7 +264,7 @@ document.getElementById('reset-to-defaults').addEventListener('click', e => {
   document.getElementById('select-oscillator').value = 'default';
   document.getElementById('select-note-duration').value = 'default';
   document.getElementById('select-chord-duration').value = 'default';
-  document.getElementById('highlighting').checked = true;
+  highlightingControl.checked = true;
 
   settingControlIds.forEach(id => {
     const control = document.getElementById(id);
@@ -252,6 +273,9 @@ document.getElementById('reset-to-defaults').addEventListener('click', e => {
     });
   });  
   browser.storage.sync.set({
-    highlighting: document.getElementById('highlighting').checked
+    highlighting: highlightingControl.checked
+  });
+  browser.storage.sync.set({
+    keepShort: keepShortControl.checked
   });
 });
