@@ -949,7 +949,7 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
           
           const totalSeconds = (nodes.length * noteDuration) + cumulativeRestCount;
           let elapsedSeconds = 0;
-          document.getElementById('total-seconds').innerHTML = totalSeconds;
+          document.getElementById('total-seconds').innerHTML = totalSeconds.toFixed(1);
           const minutes = Math.floor(totalSeconds / 60);
           const seconds = totalSeconds % 60;
 
