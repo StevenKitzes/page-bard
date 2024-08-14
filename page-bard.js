@@ -663,6 +663,7 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         // create play button and info pane
         const playButton = document.createElement('img');
         playButton.src = message.image;
+        playButton.style.display = "block";
         playButton.style.cursor = "pointer";
         playButton.style.position = "fixed";
         playButton.style.right = "8px";
