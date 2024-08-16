@@ -12,6 +12,7 @@ let decay = null;
 let oscillator = null;
 let noteDuration = null;
 let chordDuration = null;
+let highlighting = null;
 
 const keepShortControl = document.getElementById('keep-short');
 const highlightingControl = document.getElementById('highlighting');
@@ -42,7 +43,7 @@ function songify(tabs) {
     command: "songify",
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
-    keepShort: keepShortControl.checked,
+    keepShort,
     scale,
     progression: progression === 'default' ? 'random' : progression,
     randomization: randomization === 'default' ? 'normal' : randomization,
@@ -56,7 +57,7 @@ function songify(tabs) {
     oscillator: oscillator === 'default' ? 'random' : oscillator,
     noteDuration: noteDuration === 'default' ? 'random' : noteDuration,
     chordDuration: chordDuration === 'default' ? 'random' : chordDuration,
-    highlighting: highlightingControl.checked
+    highlighting
   });
 
   hideMenu();
@@ -210,6 +211,7 @@ document.getElementById('hint-modal').addEventListener('click', e => {
 });
 
 document.getElementById('play').addEventListener('click', e => {
+  keepShort = false;
   scale = "default";
   progression = "random";
   randomization = "normal";
@@ -223,6 +225,7 @@ document.getElementById('play').addEventListener('click', e => {
   oscillator = "random";
   noteDuration = "random";
   chordDuration = "random";
+  highlighting = true;
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -230,6 +233,7 @@ document.getElementById('play').addEventListener('click', e => {
 });
 
 document.getElementById('play-custom').addEventListener('click', e => {
+  keepShort = keepShortControl.checked;
   scale = document.getElementById('select-mode').value;
   progression = document.getElementById('select-progression').value;
   randomization = document.getElementById('select-randomization').value;
@@ -243,6 +247,7 @@ document.getElementById('play-custom').addEventListener('click', e => {
   oscillator = document.getElementById('select-oscillator').value;
   noteDuration = document.getElementById('select-note-duration').value;
   chordDuration = document.getElementById('select-chord-duration').value;
+  highlighting = highlightingControl.checked;
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -250,7 +255,7 @@ document.getElementById('play-custom').addEventListener('click', e => {
 });
 
 document.getElementById('reset-to-defaults').addEventListener('click', e => {
-  keepShortControl.checked = true;
+  keepShortControl.checked = false;
   document.getElementById('select-mode').value = 'default';
   document.getElementById('select-progression').value = 'default';
   document.getElementById('select-randomization').value = 'default';
@@ -264,18 +269,20 @@ document.getElementById('reset-to-defaults').addEventListener('click', e => {
   document.getElementById('select-oscillator').value = 'default';
   document.getElementById('select-note-duration').value = 'default';
   document.getElementById('select-chord-duration').value = 'default';
-  highlightingControl.checked = true;
+  highlightingControl.checked = false;
 
   settingControlIds.forEach(id => {
     const control = document.getElementById(id);
     browser.storage.sync.set({
       [id]: control.value
     });
-  });  
-  browser.storage.sync.set({
-    highlighting: highlightingControl.checked
   });
+  highlighting = highlightingControl.checked;
   browser.storage.sync.set({
-    keepShort: keepShortControl.checked
+    highlighting
+  });
+  keepShort = keepShortControl.checked;
+  browser.storage.sync.set({
+    keepShort
   });
 });

@@ -185,7 +185,8 @@ function PageBardGetProgression(requestedProgression) {
   const domain = document.location.hostname.split('.')[document.location.hostname.split('.').length - 2];
   let domainValue = 0;
   for (let i = 0; i < domain.length; i++) {
-    domainValue += domain.charCodeAt(i);
+    if (i % 2 === 0) domainValue += domain.charCodeAt(i);
+    else domainValue *= domain.charCodeAt(i);
   }
   return PageBardProgressions[domainValue % PageBardProgressions.length];
 }
@@ -379,7 +380,7 @@ function PageBardGetDecay(decayString) {
 
 function PageBardGetOscillator(oscillatorString) {
   if (oscillatorString === 'random') {
-    const oscillatorValue = document.location.pathname.length % 4;
+    const oscillatorValue = document.getElementsByTagName('body')[0].childNodes.length % 4;
     switch (oscillatorValue) {
       case 0: return 'sawtooth';
       case 1: return 'square';
@@ -389,7 +390,11 @@ function PageBardGetOscillator(oscillatorString) {
   }
 
   switch (oscillatorString) {
-    case 'sawtooth', 'square', 'triangle', 'sine': return oscillatorString;
+    case 'sawtooth':
+    case 'square':
+    case 'triangle':
+    case 'sine':
+      return oscillatorString;
     default: return 'square';
   }
 }
