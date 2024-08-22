@@ -171,6 +171,8 @@ const PageBardProgressions = [
   }
 ];
 
+const maxToneDuration = 1;
+
 function PageBardGetProgression(requestedProgression) {
   if (requestedProgression === 'none') return PageBardProgressions[0];
   if (requestedProgression === 'blues') return PageBardProgressions[1];
@@ -400,7 +402,7 @@ function PageBardGetOscillator(oscillatorString) {
 }
 
 function PageBardPlayHomeNote(synth, now, t, highlightDetails, noteDuration, chordDuration) {
-  const toneDuration = Math.max((Math.random() * 2 * chordDuration * noteDuration), noteDuration);
+  const toneDuration = Math.max((Math.random() * maxToneDuration * chordDuration * noteDuration), noteDuration);
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -412,7 +414,7 @@ function PageBardPlayHomeNote(synth, now, t, highlightDetails, noteDuration, cho
 function PageBardPlayChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration, chordDuration) {
   const tone = Math.floor(t % chordTones.length);
   const toneName = PageBardAllNotes[scaleNotesAsAllNotesIndices[chordTones[tone]]];
-  const toneDuration = Math.max((Math.random() * 2 * chordDuration * noteDuration), noteDuration);
+  const toneDuration = Math.max((Math.random() * maxToneDuration * chordDuration * noteDuration), noteDuration);
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -425,7 +427,7 @@ function PageBardPlayTrill(scaleNotesAsAllNotesIndices, composition, j, synth, n
   const shift = t % 2 > 1 ? 1 : -1;
   const mainToneName = PageBardAllNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
   const offToneName = PageBardAllNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
-  const toneDuration = Math.max((Math.random() * 2 * chordDuration * noteDuration), 2 * noteDuration);
+  const toneDuration = Math.max((Math.random() * maxToneDuration * chordDuration * noteDuration), maxToneDuration * noteDuration);
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -439,13 +441,12 @@ function PageBardPlayTrill(scaleNotesAsAllNotesIndices, composition, j, synth, n
 }
 
 function PageBardPlayScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration) {
-  const timeString = Math.round(t).toString();
-  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  let runNotes = Math.round(t) % 10;
   if (runNotes < 3) runNotes = 3;
-  if (runNotes > 5) runNotes = 5;
-  const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
+  if (runNotes > 8) runNotes = 8;
+  const startToneIndexScaleIndex = composition[j] % (scaleNotesAsAllNotesIndices.length - runNotes + 1);
 
-  const toneDuration = (runNotes.length * noteDuration) + noteDuration;
+  const toneDuration = runNotes * noteDuration;
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -463,13 +464,12 @@ function PageBardPlayScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, syn
 }
 
 function PageBardPlayScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration) {
-  const timeString = Math.round(t).toString();
-  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  let runNotes = Math.round(t) % 10;
   if (runNotes < 3) runNotes = 3;
-  if (runNotes > 5) runNotes = 5;
-  const startToneIndexScaleIndex = composition[j] % scaleNotesAsAllNotesIndices.length;
+  if (runNotes > 8) runNotes = 8;
+  const startToneIndexScaleIndex = composition[j] % (scaleNotesAsAllNotesIndices.length - runNotes + 1) + runNotes - 1;
 
-  const toneDuration = (runNotes.length * noteDuration) + noteDuration;
+  const toneDuration = runNotes * noteDuration;
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -487,13 +487,12 @@ function PageBardPlayScaleRunDown(composition, j, scaleNotesAsAllNotesIndices, s
 }
 
 function PageBardPlayArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration) {
-  const timeString = Math.round(t).toString();
-  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  let runNotes = Math.round(t) % 10;
   if (runNotes < 3) runNotes = 3;
-  if (runNotes > 5) runNotes = 5;
-  const startingChordToneIndex = Math.floor(t % (chordTones.length / 2));
+  if (runNotes > 7) runNotes = 7;
+  const startingChordToneIndex = Math.floor(t % (chordTones.length - runNotes + 1));
 
-  const toneDuration = (runNotes.length * noteDuration) + noteDuration;
+  const toneDuration = runNotes * noteDuration;
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -511,13 +510,12 @@ function PageBardPlayArpeggiateUp(chordTones, scaleNotesAsAllNotesIndices, synth
 }
 
 function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration) {
-  const timeString = Math.round(t).toString();
-  let runNotes = Number(timeString.charAt(timeString.length - 1));
+  let runNotes = Math.round(t) % 10;
   if (runNotes < 3) runNotes = 3;
-  if (runNotes > 5) runNotes = 5;
-  const startingChordToneIndex = Math.floor((t % (chordTones.length / 2)) + chordTones.length / 2);
+  if (runNotes > 7) runNotes = 7;
+  const startingChordToneIndex = Math.floor(t % (chordTones.length - runNotes + 1) + runNotes - 1);
   
-  const toneDuration = (runNotes.length * noteDuration) + noteDuration;
+  const toneDuration = runNotes * noteDuration;
   highlightDetails.push({
     start: t,
     duration: toneDuration
@@ -670,9 +668,11 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         playButton.src = message.image;
         playButton.style.display = "block";
         playButton.style.cursor = "pointer";
+        playButton.style.height = "48px";
         playButton.style.position = "fixed";
         playButton.style.right = "8px";
         playButton.style.top = "8px";
+        playButton.style.width = "48px";
         playButton.style.zIndex = "2147483647";
 
         const infoPane = document.createElement('div');
@@ -846,7 +846,7 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
             // ) composition[j] += 8;
           }
           
-          // create tones for all the notes in songNotes
+          // create tones for all the composition elements in songNotes
           for (let j = 0; j < composition.length; j++) {
             PageBardUpdateChordTones(chordTones, j, progression, scaleNotesAsAllNotesIndices, chordDuration);
 
@@ -934,7 +934,7 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
             
             scaleNoteCount++;
             const toneName = PageBardAllNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
-            const toneDuration = Math.max((Math.random() * 8 * noteDuration), noteDuration);
+            const toneDuration = Math.max((Math.random() * maxToneDuration * noteDuration), noteDuration);
             highlightDetails.push({
               start: t,
               duration: toneDuration
