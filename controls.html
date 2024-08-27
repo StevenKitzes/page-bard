@@ -25,6 +25,27 @@
         top: -0.25em;
         vertical-align: top;
       }
+      .advanced-check-control > input {
+        margin-left: 1em;
+        margin-right: 1em;
+      }
+      .advanced-control {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        margin-bottom: 0.5em;
+        padding-left: 1em;
+      }
+      .advanced-select-control {
+        display: grid;
+        grid-template-columns: 50% 40% 10%;
+        padding: 0 0 0 1em;
+        text-align: left;
+      }
+      .advanced-select-control > img {
+        margin: 0;
+      }
       .control {
         align-items: center;
         border: 2px solid black;
@@ -39,6 +60,10 @@
         border: 2px solid orange;
         cursor: pointer;
       }
+      .customization-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
       .customization-row {
         align-items: center;
         display: flex;
@@ -51,10 +76,29 @@
       .hidden {
         display: none;
       }
+      .page-head-spacer {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
       .q-btn {
         cursor: pointer;
         height: 1.5em;
         width: 1.5em;
+      }
+      #advanced-modal {
+        background-color: black;
+        display: none;
+        height: 100vh;
+        left: 0px;
+        position: fixed;
+        top: 0px;
+        width: 100vw;
+        z-index: 9;
+      }
+      #advanced-title {
+        display: block;
+        font-weight: bold;
+        margin: 0.5em;
       }
       #controls {
         display: flex;
@@ -70,10 +114,6 @@
         margin-bottom: 0px;
         margin-top: 4px;
       }
-      #customization-controls {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
       #deep-description {
         border: 2px solid orange;
         border-radius: 1em;
@@ -83,9 +123,12 @@
       #description {
         align-items: center;
         display: flex;
+        flex: 0 1 auto;
         flex-direction: row;
         justify-content: center;
         margin-bottom: 0px;
+        min-width: 0;
+        padding-left: 8px;
       }
       #hint-modal {
         background-color: #663300;
@@ -127,6 +170,17 @@
         width: 100vw;
         z-index: 10;
       }
+      #page-head {
+        display: flex;
+        margin-top: 0.5em;
+        width: 100%;
+      }
+      #title {
+        flex: 0 1 auto;
+        font-size: 2em;
+        min-width: 0;
+        padding-right: 8px;
+      }
     </style>
   </head>
   <body id="page-bard-body">
@@ -139,16 +193,24 @@
       <h1>Loading Page Bard . . .</h1>
     </div>
 
-    <h1>Page Bard</h1>
-    <p id="description">Play (almost) any website you visit as a song!&nbsp;&nbsp;<img id="page-bard-info" class="q-btn" src="icons/question.png" /></p>
+    <div id="page-head">
+      <span class="page-head-spacer"></span>
+      <span id="title">Page Bard</span>
+      <span id="description">Play (almost) any website you visit as a song!&nbsp;&nbsp;<img id="page-bard-info" class="q-btn" src="icons/question.png" /></span>
+      <span class="page-head-spacer"></span>
+    </div>
+
     <div id="controls">
       <div id="play" class="control">
         <img src="icons/play-button-48.png" /> Let Page Bard compose on its own.
       </div>
       <hr style="width: 80%" />
-      <p id="customization">Some customizations available. <button id="reset-to-defaults">Reset all defaults</button> <span id='keep-short-span'>Keep short: <input type="checkbox" id="keep-short" /> <img id="keep-short-info-button" class="q-btn" src="icons/question.png" /></span></p>
 
-      <div id="customization-controls">
+      <div id="play-custom" class="control">
+        <img src="icons/play-button-48.png" /> Use Page Bard with the following customizations:
+      </div>
+
+      <div class="customization-controls">
         <div class="customization-row">
           <select id="select-mode">
             <option value="default">Choose musical mode/scale . . .</option>
@@ -312,11 +374,214 @@
         </div>
       </div>
 
-      <div id="play-custom" class="control">
-        <img src="icons/play-button-48.png" /> Use Page Bard with customization.
-      </div>
+      <p id="customization">
+        <button id="reset-to-defaults">Reset all defaults</button>
+        <span id='keep-short-span'>Keep short: <input type="checkbox" id="keep-short" /> <img id="keep-short-info-button" class="q-btn" src="icons/question.png" /></span>
+        <button id="advanced-button">Advanced Controls</button>
+      </p>
 
       <div id="logs"></div>
+
+      <div id="advanced-modal">
+        <span id="advanced-title">Advanced controls</span>
+        <div class="customization-controls">
+          <div class="advanced-control advanced-select-control">
+            Mode
+            <select class="advanced-select" id="advanced-select-mode">
+              <option value="default">Default</option>
+              <option value="ionian">Ionian</option>
+              <option value="dorian">Dorian</option>
+              <option value="phrygian">Phrygian</option>
+              <option value="lydian">Lydian</option>
+              <option value="mixolydian">Mixolydian</option>
+              <option value="aeolian">Aeolian</option>
+              <option value="locrian">Locrian</option>
+              <option value="harmonic-minor">Harmonic Minor</option>
+              <option value="byzantine">Byzantine</option>
+            </select>
+            <img id="advanced-scale-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Progression
+            <select class="advanced-select" id="advanced-select-progression">
+              <option value="default">Default</option>
+              <option value="none">None</option>
+              <option value="blues">12-bar blues</option>
+              <option value="jazz">Simple jazz</option>
+              <option value="pop">Simple pop</option>
+              <option value="alt-pop">Alt pop</option>
+              <option value="andalusian">Andalusian</option>
+              <option value="ballad">Ballad</option>
+              <option value="pop-rock">Pop rock</option>
+              <option value="deterministic">Deterministic</option>
+            </select><img id="advanced-progression-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Randomization
+            <select class="advanced-select" id="advanced-select-randomization">
+              <option value="default">Default</option>
+              <option value="none">Plain notes</option>
+              <option value="minimal">Minimal</option>
+              <option value="low">Low</option>
+              <option value="normal">Default</option>
+              <option value="high">Lots</option>
+              <option value="extreme">Tons</option>
+            </select><img id="advanced-randomization-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Rests
+            <select class="advanced-select" id="advanced-select-rests">
+              <option value="default">Default</option>
+              <option value="none">None</option>
+              <option value="minimal">Minimal</option>
+              <option value="low">Less</option>
+              <option value="normal">Default</option>
+              <option value="high">Lots</option>
+              <option value="extreme">Tons</option>
+            </select><img id="advanced-rests-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Rest length
+            <select class="advanced-select" id="advanced-select-rest-duration">
+              <option value="default">Default</option>
+              <option value="shortest">Shortest</option>
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+              <option value="longest">Longest</option>
+            </select><img id="advanced-rest-duration-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Trills
+            <select class="advanced-select" id="advanced-select-trills">
+              <option value="default">Default</option>
+              <option value="none">None</option>
+              <option value="minimal">Minimal</option>
+              <option value="low">Less</option>
+              <option value="normal">Default</option>
+              <option value="high">Lots</option>
+              <option value="extreme">Tons</option>
+            </select><img id="advanced-trills-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Scale runs
+            <select class="advanced-select" id="advanced-select-scale-runs">
+              <option value="default">Default</option>
+              <option value="none">None</option>
+              <option value="minimal">Minimal</option>
+              <option value="low">Less</option>
+              <option value="normal">Default</option>
+              <option value="high">Lots</option>
+              <option value="extreme">Tons</option>
+            </select><img id="advanced-scale-runs-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Arpeggios
+            <select class="advanced-select" id="advanced-select-arpeggiation">
+              <option value="default">Default</option>
+              <option value="none">None</option>
+              <option value="minimal">Minimal</option>
+              <option value="low">Less</option>
+              <option value="normal">Default</option>
+              <option value="high">Lots</option>
+              <option value="extreme">Tons</option>
+            </select><img id="advanced-arpeggiation-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+  
+          <div class="advanced-control advanced-select-control">
+            Attack
+            <select class="advanced-select" id="advanced-select-attack">
+              <option value="default">Default</option>
+              <option value="random">Deterministic</option>
+              <option value="slowest">Slowest</option>
+              <option value="slow">Slow</option>
+              <option value="medium">Medium</option>
+              <option value="fast">Fast</option>
+              <option value="fastest">Fastest</option>
+            </select><img id="advanced-attack-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+  
+          <div class="advanced-control advanced-select-control">
+            Decay
+            <select class="advanced-select" id="advanced-select-decay">
+              <option value="default">Default</option>
+              <option value="random">Deterministic</option>
+              <option value="slowest">Slowest</option>
+              <option value="slow">Slow</option>
+              <option value="medium">Medium</option>
+              <option value="fast">Fast</option>
+              <option value="fastest">Fastest</option>
+            </select><img id="advanced-decay-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+          
+          <div class="advanced-control advanced-select-control">
+            Note length
+            <select class="advanced-select" id="advanced-select-note-duration">
+              <option value="default">Default</option>
+              <option value="shortest">Shortest</option>
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+              <option value="longest">Longest</option>
+            </select><img id="advanced-note-duration-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+          
+          <div class="advanced-control advanced-select-control">
+            Chord length
+            <select class="advanced-select" id="advanced-select-chord-duration">
+              <option value="default">Default</option>
+              <option value="shortest">Shortest</option>
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+              <option value="longest">Longest</option>
+            </select><img id="advanced-chord-duration-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+  
+          <div class="advanced-control advanced-select-control">
+            Oscillator
+            <select class="advanced-select" id="advanced-select-oscillator">
+              <option value="default">Default</option>
+              <option value="random">Deterministic</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="sine">Sine</option>
+              <option value="square">Square</option>
+              <option value="triangle">Triangle</option>
+            </select><img id="advanced-oscillator-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="customization-controls">
+          <div class="advanced-control advanced-check-control">
+            Element highlighting <input type="checkbox" id="advanced-highlighting" /> <img id="advanced-highlighting-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+          
+          <div class="advanced-control advanced-check-control">
+            Keep short <input type="checkbox" id="advanced-keep-short" /> <img id="advanced-keep-short-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="customization-controls">
+          <div class="advanced-control">
+            <button id="advanced-reset-to-defaults">Reset all defaults</button>
+          </div>
+  
+          <div class="advanced-control">
+            <button id="back-from-advanced-button">Back</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="controls.js"></script>
   </body>
