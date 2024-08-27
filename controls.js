@@ -1,9 +1,9 @@
 let keepShort = null;
 let scale = null;
 let progression = null;
-let randomization = null;
 let rests = null;
 let restDuration = null;
+let randomization = null;
 let trills = null;
 let scaleRuns = null;
 let arpeggiation = null;
@@ -14,8 +14,39 @@ let noteDuration = null;
 let chordDuration = null;
 let highlighting = null;
 
+// advanced page
+let trillLength = null;
+
 const advancedButton = document.getElementById('advanced-button');
 const backFromAdvancedButton = document.getElementById('back-from-advanced-button');
+
+const selectModeControl = document.getElementById('select-mode');
+const selectProgressionControl = document.getElementById('select-progression');
+const selectRestsControl = document.getElementById('select-rests');
+const selectRestDurationControl = document.getElementById('select-rest-duration');
+const selectRandomizationControl = document.getElementById('select-randomization');
+const selectTrillsControl = document.getElementById('select-trills');
+const selectScaleRunsControl = document.getElementById('select-scale-runs');
+const selectArpeggiationControl = document.getElementById('select-arpeggiation');
+const selectAttackControl = document.getElementById('select-attack');
+const selectDecayControl = document.getElementById('select-decay');
+const selectOscillatorControl = document.getElementById('select-oscillator');
+const selectNoteDurationControl = document.getElementById('select-note-duration');
+const selectChordDurationControl = document.getElementById('select-chord-duration');
+// advanced page
+const advancedSelectModeControl = document.getElementById('advanced-select-mode');
+const advancedSelectProgressionControl = document.getElementById('advanced-select-progression');
+const advancedSelectRestsControl = document.getElementById('advanced-select-rests');
+const advancedSelectRestDurationControl = document.getElementById('advanced-select-rest-duration');
+const advancedSelectRandomizationControl = document.getElementById('advanced-select-randomization');
+const advancedSelectTrillsControl = document.getElementById('advanced-select-trills');
+const advancedSelectScaleRunsControl = document.getElementById('advanced-select-scale-runs');
+const advancedSelectArpeggiationControl = document.getElementById('advanced-select-arpeggiation');
+const advancedSelectAttackControl = document.getElementById('advanced-select-attack');
+const advancedSelectDecayControl = document.getElementById('advanced-select-decay');
+const advancedSelectOscillatorControl = document.getElementById('advanced-select-oscillator');
+const advancedSelectNoteDurationControl = document.getElementById('advanced-select-note-duration');
+const advancedSelectChordDurationControl = document.getElementById('advanced-select-chord-duration');
 
 const keepShortControl = document.getElementById('keep-short');
 const highlightingControl = document.getElementById('highlighting');
@@ -29,9 +60,9 @@ function songify(tabs) {
 
   if (!scale) warningText.push('No scale found!');
   if (!progression) warningText.push('No chord progression found!');
-  if (!randomization) warningText.push('No randomization factor found!');
   if (!rests) warningText.push('No rests factor found!');
   if (!restDuration) warningText.push('No rest duration found!');
+  if (!randomization) warningText.push('No randomization factor found!');
   if (!trills) warningText.push('No trills factor found!');
   if (!scaleRuns) warningText.push('No scale runs factor found!');
   if (!arpeggiation) warningText.push('No arpeggiation factor found!');
@@ -53,9 +84,9 @@ function songify(tabs) {
     keepShort,
     scale,
     progression: progression === 'default' ? 'random' : progression,
-    randomization: randomization === 'default' ? 'normal' : randomization,
     rests: rests === 'default' ? 'normal' : rests,
     restDuration: restDuration === 'default' ? 'long' : restDuration,
+    randomization: randomization === 'default' ? 'normal' : randomization,
     trills: trills === 'default' ? 'normal' : trills,
     scaleRuns: scaleRuns === 'default' ? 'normal' : scaleRuns,
     arpeggiation: arpeggiation === 'default' ? 'normal' : arpeggiation,
@@ -80,9 +111,9 @@ function hideMenu() {
 const settingControlIds = [
   'select-mode',
   'select-progression',
-  'select-randomization',
   'select-rests',
   'select-rest-duration',
+  'select-randomization',
   'select-trills',
   'select-scale-runs',
   'select-arpeggiation',
@@ -94,9 +125,9 @@ const settingControlIds = [
   // advanced page
   'advanced-select-mode',
   'advanced-select-progression',
-  'advanced-select-randomization',
   'advanced-select-rests',
   'advanced-select-rest-duration',
+  'advanced-select-randomization',
   'advanced-select-trills',
   'advanced-select-scale-runs',
   'advanced-select-arpeggiation',
@@ -110,39 +141,41 @@ const settingControlIds = [
 advancedButton.addEventListener('click', e => {
   advancedModal.style.display = 'unset';
 
+  advancedSelectModeControl.value = selectModeControl.value;
+  advancedSelectProgressionControl.value = selectProgressionControl.value;
+  advancedSelectRestsControl.value = selectRestsControl.value;
+  advancedSelectRestDurationControl.value = selectRestDurationControl.value;
+  advancedSelectRandomizationControl.value = selectRandomizationControl.value;
+  advancedSelectTrillsControl.value = selectTrillsControl.value;
+  advancedSelectScaleRunsControl.value = selectScaleRunsControl.value;
+  advancedSelectArpeggiationControl.value = selectArpeggiationControl.value;
+  advancedSelectAttackControl.value = selectAttackControl.value;
+  advancedSelectDecayControl.value = selectDecayControl.value;
+  advancedSelectOscillatorControl.value = selectOscillatorControl.value;
+  advancedSelectNoteDurationControl.value = selectNoteDurationControl.value;
+  advancedSelectChordDurationControl.value = selectChordDurationControl.value;
+  
   advancedKeepShortControl.checked = keepShortControl.checked;
-  document.getElementById('advanced-select-mode').value = document.getElementById('select-mode').value;
-  document.getElementById('advanced-select-progression').value = document.getElementById('select-progression').value;
-  document.getElementById('advanced-select-randomization').value = document.getElementById('select-randomization').value;
-  document.getElementById('advanced-select-rests').value = document.getElementById('select-rests').value;
-  document.getElementById('advanced-select-rest-duration').value = document.getElementById('select-rest-duration').value;
-  document.getElementById('advanced-select-trills').value = document.getElementById('select-trills').value;
-  document.getElementById('advanced-select-scale-runs').value = document.getElementById('select-scale-runs').value;
-  document.getElementById('advanced-select-arpeggiation').value = document.getElementById('select-arpeggiation').value;
-  document.getElementById('advanced-select-attack').value = document.getElementById('select-attack').value;
-  document.getElementById('advanced-select-decay').value = document.getElementById('select-decay').value;
-  document.getElementById('advanced-select-oscillator').value = document.getElementById('select-oscillator').value;
-  document.getElementById('advanced-select-note-duration').value = document.getElementById('select-note-duration').value;
-  document.getElementById('advanced-select-chord-duration').value = document.getElementById('select-chord-duration').value;
   advancedHighlightingControl.checked = highlightingControl.checked;
 });
 backFromAdvancedButton.addEventListener('click', e => {
   advancedModal.style.display = 'none';
 
+  selectModeControl.value = advancedSelectModeControl.value;
+  selectProgressionControl.value = advancedSelectProgressionControl.value;
+  selectRestsControl.value = advancedSelectRestsControl.value;
+  selectRestDurationControl.value = advancedSelectRestDurationControl.value;
+  selectRandomizationControl.value = advancedSelectRandomizationControl.value;
+  selectTrillsControl.value = advancedSelectTrillsControl.value;
+  selectScaleRunsControl.value = advancedSelectScaleRunsControl.value;
+  selectArpeggiationControl.value = advancedSelectArpeggiationControl.value;
+  selectAttackControl.value = advancedSelectAttackControl.value;
+  selectDecayControl.value = advancedSelectDecayControl.value;
+  selectOscillatorControl.value = advancedSelectOscillatorControl.value;
+  selectNoteDurationControl.value = advancedSelectNoteDurationControl.value;
+  selectChordDurationControl.value = advancedSelectChordDurationControl.value;
+
   keepShortControl.checked = advancedKeepShortControl.checked;
-  document.getElementById('select-mode').value = document.getElementById('advanced-select-mode').value;
-  document.getElementById('select-progression').value = document.getElementById('advanced-select-progression').value;
-  document.getElementById('select-randomization').value = document.getElementById('advanced-select-randomization').value;
-  document.getElementById('select-rests').value = document.getElementById('advanced-select-rests').value;
-  document.getElementById('select-rest-duration').value = document.getElementById('advanced-select-rest-duration').value;
-  document.getElementById('select-trills').value = document.getElementById('advanced-select-trills').value;
-  document.getElementById('select-scale-runs').value = document.getElementById('advanced-select-scale-runs').value;
-  document.getElementById('select-arpeggiation').value = document.getElementById('advanced-select-arpeggiation').value;
-  document.getElementById('select-attack').value = document.getElementById('advanced-select-attack').value;
-  document.getElementById('select-decay').value = document.getElementById('advanced-select-decay').value;
-  document.getElementById('select-oscillator').value = document.getElementById('advanced-select-oscillator').value;
-  document.getElementById('select-note-duration').value = document.getElementById('advanced-select-note-duration').value;
-  document.getElementById('select-chord-duration').value = document.getElementById('advanced-select-chord-duration').value;
   highlightingControl.checked = advancedHighlightingControl.checked;
 });
 
@@ -358,12 +391,11 @@ document.getElementById('hint-modal').addEventListener('click', e => {
 });
 
 document.getElementById('play').addEventListener('click', e => {
-  keepShort = false;
   scale = "default";
   progression = "random";
-  randomization = "normal";
   rests = "normal";
   restDuration = "long";
+  randomization = "normal";
   trills = "normal";
   scaleRuns = "normal";
   arpeggiation = "normal";
@@ -372,7 +404,10 @@ document.getElementById('play').addEventListener('click', e => {
   oscillator = "random";
   noteDuration = "random";
   chordDuration = "random";
+  
+  keepShort = false;
   highlighting = true;
+  
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -380,21 +415,23 @@ document.getElementById('play').addEventListener('click', e => {
 });
 
 document.getElementById('play-custom').addEventListener('click', e => {
+  scale = selectModeControl.value;
+  progression = selectProgressionControl.value;
+  rests = selectRestsControl.value;
+  restDuration = selectRestDurationControl.value;
+  randomization = selectRandomizationControl.value;
+  trills = selectTrillsControl.value;
+  scaleRuns = selectScaleRunsControl.value;
+  arpeggiation = selectArpeggiationControl.value;
+  attack = selectAttackControl.value;
+  decay = selectDecayControl.value;
+  oscillator = selectOscillatorControl.value;
+  noteDuration = selectNoteDurationControl.value;
+  chordDuration = selectChordDurationControl.value;
+  
   keepShort = keepShortControl.checked;
-  scale = document.getElementById('select-mode').value;
-  progression = document.getElementById('select-progression').value;
-  randomization = document.getElementById('select-randomization').value;
-  rests = document.getElementById('select-rests').value;
-  restDuration = document.getElementById('select-rest-duration').value;
-  trills = document.getElementById('select-trills').value;
-  scaleRuns = document.getElementById('select-scale-runs').value;
-  arpeggiation = document.getElementById('select-arpeggiation').value;
-  attack = document.getElementById('select-attack').value;
-  decay = document.getElementById('select-decay').value;
-  oscillator = document.getElementById('select-oscillator').value;
-  noteDuration = document.getElementById('select-note-duration').value;
-  chordDuration = document.getElementById('select-chord-duration').value;
   highlighting = highlightingControl.checked;
+  
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(songify)
@@ -405,36 +442,37 @@ document.getElementById('reset-to-defaults').addEventListener('click', resetToDe
 document.getElementById('advanced-reset-to-defaults').addEventListener('click', resetToDefaults);
 
 function resetToDefaults (e) {
+  selectModeControl.value = 'default';
+  selectProgressionControl.value = 'default';
+  selectRestsControl.value = 'default';
+  selectRestDurationControl.value = 'default';
+  selectRandomizationControl.value = 'default';
+  selectTrillsControl.value = 'default';
+  selectScaleRunsControl.value = 'default';
+  selectArpeggiationControl.value = 'default';
+  selectAttackControl.value = 'default';
+  selectDecayControl.value = 'default';
+  selectOscillatorControl.value = 'default';
+  selectNoteDurationControl.value = 'default';
+  selectChordDurationControl.value = 'default';
+  
+  advancedSelectModeControl.value = 'default';
+  advancedSelectProgressionControl.value = 'default';
+  advancedSelectRestsControl.value = 'default';
+  advancedSelectRestDurationControl.value = 'default';
+  advancedSelectRandomizationControl.value = 'default';
+  advancedSelectTrillsControl.value = 'default';
+  advancedSelectScaleRunsControl.value = 'default';
+  advancedSelectArpeggiationControl.value = 'default';
+  advancedSelectAttackControl.value = 'default';
+  advancedSelectDecayControl.value = 'default';
+  advancedSelectOscillatorControl.value = 'default';
+  advancedSelectNoteDurationControl.value = 'default';
+  advancedSelectChordDurationControl.value = 'default';
+  
   keepShortControl.checked = false;
-  document.getElementById('select-mode').value = 'default';
-  document.getElementById('select-progression').value = 'default';
-  document.getElementById('select-randomization').value = 'default';
-  document.getElementById('select-rests').value = 'default';
-  document.getElementById('select-rest-duration').value = 'default';
-  document.getElementById('select-trills').value = 'default';
-  document.getElementById('select-scale-runs').value = 'default';
-  document.getElementById('select-arpeggiation').value = 'default';
-  document.getElementById('select-attack').value = 'default';
-  document.getElementById('select-decay').value = 'default';
-  document.getElementById('select-oscillator').value = 'default';
-  document.getElementById('select-note-duration').value = 'default';
-  document.getElementById('select-chord-duration').value = 'default';
   highlightingControl.checked = false;
-
   advancedKeepShortControl.checked = false;
-  document.getElementById('advanced-select-mode').value = 'default';
-  document.getElementById('advanced-select-progression').value = 'default';
-  document.getElementById('advanced-select-randomization').value = 'default';
-  document.getElementById('advanced-select-rests').value = 'default';
-  document.getElementById('advanced-select-rest-duration').value = 'default';
-  document.getElementById('advanced-select-trills').value = 'default';
-  document.getElementById('advanced-select-scale-runs').value = 'default';
-  document.getElementById('advanced-select-arpeggiation').value = 'default';
-  document.getElementById('advanced-select-attack').value = 'default';
-  document.getElementById('advanced-select-decay').value = 'default';
-  document.getElementById('advanced-select-oscillator').value = 'default';
-  document.getElementById('advanced-select-note-duration').value = 'default';
-  document.getElementById('advanced-select-chord-duration').value = 'default';
   advancedHighlightingControl.checked = false;
 
   settingControlIds.forEach(id => {

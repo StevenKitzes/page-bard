@@ -242,18 +242,6 @@
         </div>
   
         <div class="customization-row">
-          <select id="select-randomization">
-            <option value="default">Choose randomization factor . . .</option>
-            <option value="none">Plain notes only</option>
-            <option value="minimal">Minimal feature usage</option>
-            <option value="low">Low feature usage</option>
-            <option value="normal">Normal/default feature usage</option>
-            <option value="high">Lots of feature usage</option>
-            <option value="extreme">Tons of feature usage</option>
-          </select>&nbsp;<img id="randomization-info-button" class="q-btn" src="icons/question.png" />
-        </div>
-  
-        <div class="customization-row">
           <select id="select-rests">
             <option value="default">Choose rest frequency . . .</option>
             <option value="none">No rests</option>
@@ -268,12 +256,24 @@
         <div class="customization-row">
           <select id="select-rest-duration">
             <option value="default">Choose rest duration . . .</option>
-            <option value="shortest">Shortest</option>
-            <option value="short">Short</option>
-            <option value="medium">Medium</option>
-            <option value="long">Long</option>
-            <option value="longest">Longest</option>
+            <option value="shortest">Shortest rests</option>
+            <option value="short">Short rests</option>
+            <option value="medium">Medium rests</option>
+            <option value="long">Long rests</option>
+            <option value="longest">Longest rests</option>
           </select>&nbsp;<img id="rest-duration-info-button" class="q-btn" src="icons/question.png" />
+        </div>
+  
+        <div class="customization-row">
+          <select id="select-randomization">
+            <option value="default">Choose randomization factor . . .</option>
+            <option value="none">Plain notes only</option>
+            <option value="minimal">Minimal feature usage</option>
+            <option value="low">Low feature usage</option>
+            <option value="normal">Normal/default feature usage</option>
+            <option value="high">Lots of feature usage</option>
+            <option value="extreme">Tons of feature usage</option>
+          </select>&nbsp;<img id="randomization-info-button" class="q-btn" src="icons/question.png" />
         </div>
   
         <div class="customization-row">
@@ -361,11 +361,11 @@
         <div class="customization-row">
           <select id="select-oscillator">
             <option value="default">Choose oscillator . . .</option>
-            <option value="random">Random</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="sine">Sine</option>
-            <option value="square">Square</option>
-            <option value="triangle">Triangle</option>
+            <option value="random">Random oscillator</option>
+            <option value="sawtooth">Sawtooth oscillator</option>
+            <option value="sine">Sine oscillator</option>
+            <option value="square">Square oscillator</option>
+            <option value="triangle">Triangle oscillator</option>
           </select>&nbsp;<img id="oscillator-info-button" class="q-btn" src="icons/question.png" />
         </div>
 
@@ -419,26 +419,13 @@
           </div>
     
           <div class="advanced-control advanced-select-control">
-            Randomization
-            <select class="advanced-select" id="advanced-select-randomization">
-              <option value="default">Default</option>
-              <option value="none">Plain notes</option>
-              <option value="minimal">Minimal</option>
-              <option value="low">Low</option>
-              <option value="normal">Default</option>
-              <option value="high">Lots</option>
-              <option value="extreme">Tons</option>
-            </select><img id="advanced-randomization-info-button" class="q-btn" src="icons/question.png" />
-          </div>
-    
-          <div class="advanced-control advanced-select-control">
             Rests
             <select class="advanced-select" id="advanced-select-rests">
               <option value="default">Default</option>
               <option value="none">None</option>
               <option value="minimal">Minimal</option>
               <option value="low">Less</option>
-              <option value="normal">Default</option>
+              <option value="normal">Medium</option>
               <option value="high">Lots</option>
               <option value="extreme">Tons</option>
             </select><img id="advanced-rests-info-button" class="q-btn" src="icons/question.png" />
@@ -457,6 +444,19 @@
           </div>
     
           <div class="advanced-control advanced-select-control">
+            Randomization
+            <select class="advanced-select" id="advanced-select-randomization">
+              <option value="default">Default</option>
+              <option value="none">Plain notes</option>
+              <option value="minimal">Minimal</option>
+              <option value="low">Low</option>
+              <option value="normal">Default</option>
+              <option value="high">Lots</option>
+              <option value="extreme">Tons</option>
+            </select><img id="advanced-randomization-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
             Trills
             <select class="advanced-select" id="advanced-select-trills">
               <option value="default">Default</option>
@@ -467,6 +467,17 @@
               <option value="high">Lots</option>
               <option value="extreme">Tons</option>
             </select><img id="advanced-trills-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+    
+          <div class="advanced-control advanced-select-control">
+            Trill length
+            <select class="advanced-select" id="advanced-select-trill-length">
+              <option value="default">Default</option>
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+              <option value="extreme">Extreme</option>
+            </select><img id="advanced-trill-length-info-button" class="q-btn" src="icons/question.png" />
           </div>
     
           <div class="advanced-control advanced-select-control">
