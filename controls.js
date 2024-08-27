@@ -47,6 +47,8 @@ const advancedSelectDecayControl = document.getElementById('advanced-select-deca
 const advancedSelectOscillatorControl = document.getElementById('advanced-select-oscillator');
 const advancedSelectNoteDurationControl = document.getElementById('advanced-select-note-duration');
 const advancedSelectChordDurationControl = document.getElementById('advanced-select-chord-duration');
+// advanced page advanced's
+const advancedSelectTrillLengthControl = document.getElementById('advanced-select-trill-length');
 
 const keepShortControl = document.getElementById('keep-short');
 const highlightingControl = document.getElementById('highlighting');
@@ -71,6 +73,8 @@ function songify(tabs) {
   if (!oscillator) warningText.push('No oscillator found!');
   if (!noteDuration) warningText.push('No note duration found!');
   if (!chordDuration) warningText.push('No chord duration found!');
+  // advanced
+  if (!trillLength) warningText.push('No trill length found!');
 
   if (warningText.length > 0) {
     alert(warningText.join(' '));
@@ -79,9 +83,10 @@ function songify(tabs) {
 
   browser.tabs.sendMessage(tabs[0].id, {
     command: "songify",
+
     image: browser.runtime.getURL("icons/play-button-48.png"),
     stopImage: browser.runtime.getURL("icons/stop-button-48.png"),
-    keepShort,
+
     scale,
     progression: progression === 'default' ? 'random' : progression,
     rests: rests === 'default' ? 'normal' : rests,
@@ -95,6 +100,11 @@ function songify(tabs) {
     oscillator: oscillator === 'default' ? 'random' : oscillator,
     noteDuration: noteDuration === 'default' ? 'random' : noteDuration,
     chordDuration: chordDuration === 'default' ? 'random' : chordDuration,
+
+    // advanced
+    trillLength: trillLength === 'default' ? 'medium' : trillLength,
+
+    keepShort,
     highlighting
   });
 
@@ -135,7 +145,9 @@ const settingControlIds = [
   'advanced-select-decay',
   'advanced-select-oscillator',
   'advanced-select-note-duration',
-  'advanced-select-chord-duration'
+  'advanced-select-chord-duration',
+  // advanced's
+  'advanced-select-trill-length'
 ];
 
 advancedButton.addEventListener('click', e => {
@@ -213,6 +225,21 @@ advancedHighlightingControl.addEventListener('change', e => {
 setTimeout(() => {
   document.getElementById('loading-modal').style.display = 'none';
   settingControlIds.forEach(id => {
+    // this conditional block for advanced options
+    if ([
+      'advanced-select-trill-length'
+    ].includes(id)) {
+      const trimmedId = id.replace('advanced-', '');
+      browser.storage.sync.get(trimmedId).then(value => {
+        if (!value[trimmedId]) {
+          document.getElementById(id).value = 'default';
+          return;
+        }
+        document.getElementById(id).value = value[trimmedId];
+      });
+      return;
+    }
+
     browser.storage.sync.get(id).then(value => {
       if (!value[id]) {
         document.getElementById(id).value = 'default';
@@ -377,6 +404,12 @@ const hintDefs = [
   {
     buttonId: 'advanced-highlighting-info-button',
     hintCopy: "Check this box if you want to turn highlighting on.  This will highlight each element on the page as it is being played.  It won't look super pretty but it can be educational or interesting to see which elements create which type of music.  It's important to note that a lot of elements don't have any visual representation in the browser (such as scripts, meta tags, style tags, etc).  So sometimes you'll hear music but won't see anything highlighted."
+  },
+
+  // advanced's
+  {
+    buttonId: 'advanced-trill-length-info-button',
+    hintCopy: "You can determine how long you'd like trills to be able to last.  A short trill will visit a neighboring note from the base note just once.  A long trill will alternate between the base and a neighboring note several times.  Changing this setting will determine the maximum possible length of a trill that Page Bard will consider when composing a page's song.  By default, Page Bard will allow short and medium trills."
   }
 ];
 hintDefs.forEach(hint => {
@@ -404,6 +437,8 @@ document.getElementById('play').addEventListener('click', e => {
   oscillator = "random";
   noteDuration = "random";
   chordDuration = "random";
+
+  trillLength = "medium";
   
   keepShort = false;
   highlighting = true;
@@ -428,6 +463,8 @@ document.getElementById('play-custom').addEventListener('click', e => {
   oscillator = selectOscillatorControl.value;
   noteDuration = selectNoteDurationControl.value;
   chordDuration = selectChordDurationControl.value;
+
+  trillLength = advancedSelectTrillLengthControl.value;
   
   keepShort = keepShortControl.checked;
   highlighting = highlightingControl.checked;

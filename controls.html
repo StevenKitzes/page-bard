@@ -25,6 +25,12 @@
         top: -0.25em;
         vertical-align: top;
       }
+      .advanced-control.advanced-check-control {
+        justify-content: space-between;
+      }
+      .advanced-check-control > img {
+        margin-right: 7px;
+      }
       .advanced-check-control > input {
         margin-left: 1em;
         margin-right: 1em;
@@ -45,6 +51,11 @@
       }
       .advanced-select-control > img {
         margin: 0;
+      }
+      .advanced-title {
+        display: block;
+        font-weight: bold;
+        margin: 0.5em;
       }
       .control {
         align-items: center;
@@ -94,11 +105,6 @@
         top: 0px;
         width: 100vw;
         z-index: 9;
-      }
-      #advanced-title {
-        display: block;
-        font-weight: bold;
-        margin: 0.5em;
       }
       #controls {
         display: flex;
@@ -383,7 +389,7 @@
       <div id="logs"></div>
 
       <div id="advanced-modal">
-        <span id="advanced-title">Advanced controls</span>
+        <span class="advanced-title">Basic controls</span>
         <div class="customization-controls">
           <div class="advanced-control advanced-select-control">
             Mode
@@ -467,17 +473,6 @@
               <option value="high">Lots</option>
               <option value="extreme">Tons</option>
             </select><img id="advanced-trills-info-button" class="q-btn" src="icons/question.png" />
-          </div>
-    
-          <div class="advanced-control advanced-select-control">
-            Trill length
-            <select class="advanced-select" id="advanced-select-trill-length">
-              <option value="default">Default</option>
-              <option value="short">Short</option>
-              <option value="medium">Medium</option>
-              <option value="long">Long</option>
-              <option value="extreme">Extreme</option>
-            </select><img id="advanced-trill-length-info-button" class="q-btn" src="icons/question.png" />
           </div>
     
           <div class="advanced-control advanced-select-control">
@@ -569,8 +564,6 @@
           </div>
         </div>
 
-        <hr />
-
         <div class="customization-controls">
           <div class="advanced-control advanced-check-control">
             Element highlighting <input type="checkbox" id="advanced-highlighting" /> <img id="advanced-highlighting-info-button" class="q-btn" src="icons/question.png" />
@@ -578,6 +571,22 @@
           
           <div class="advanced-control advanced-check-control">
             Keep short <input type="checkbox" id="advanced-keep-short" /> <img id="advanced-keep-short-info-button" class="q-btn" src="icons/question.png" />
+          </div>
+        </div>
+
+        <hr />
+
+        <span class="advanced-title">Advanced controls</span>
+        <div class="customization-controls">
+          <div class="advanced-control advanced-select-control">
+            Trill length
+            <select class="advanced-select" id="advanced-select-trill-length">
+              <option value="default">Default</option>
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+              <option value="extreme">Extreme</option>
+            </select><img id="advanced-trill-length-info-button" class="q-btn" src="icons/question.png" />
           </div>
         </div>
 

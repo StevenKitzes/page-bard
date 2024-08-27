@@ -37,7 +37,7 @@ testWebWorkers()
     PageBardCanRun = false;
   });
 
-const PageBardVerbose = false;
+const PageBardVerbose = true;
 const PageBardLog = {
   info: (...data) => {
     console.info("Page Bard Log:", ...data);
@@ -401,6 +401,17 @@ function PageBardGetOscillator(oscillatorString) {
   }
 }
 
+function PageBardGetTrillLength(lengthString) {
+  switch (lengthString) {
+    case 'short': return 1;
+    case 'default':
+    case 'medium': return 2;
+    case 'long': return 3;
+    case 'extreme':
+    default: return 5;
+  }
+}
+
 function PageBardPlayHomeNote(synth, now, t, highlightDetails, noteDuration, chordDuration) {
   const toneDuration = Math.max((Math.random() * maxToneDuration * chordDuration * noteDuration), noteDuration);
   highlightDetails.push({
@@ -423,21 +434,44 @@ function PageBardPlayChordTone(chordTones, scaleNotesAsAllNotesIndices, synth, n
   synth.triggerRelease(toneName, now + t + toneDuration);
 }
 
-function PageBardPlayTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails, noteDuration, chordDuration) {
+function PageBardPlayTrill(
+  scaleNotesAsAllNotesIndices,
+  composition,
+  j,
+  synth,
+  now,
+  t,
+  highlightDetails,
+  noteDuration,
+  chordDuration,
+  trillLength
+) {
   const shift = t % 2 > 1 ? 1 : -1;
   const mainToneName = PageBardAllNotes[scaleNotesAsAllNotesIndices[composition[j] % scaleNotesAsAllNotesIndices.length]];
   const offToneName = PageBardAllNotes[scaleNotesAsAllNotesIndices[(composition[j] + shift) % scaleNotesAsAllNotesIndices.length]];
-  const toneDuration = Math.max((Math.random() * maxToneDuration * chordDuration * noteDuration), maxToneDuration * noteDuration);
+
+  const calculatedTrillLength = Math.floor(t % trillLength) + 1;
+  PageBardLog.verbose('Using calculated trill length:', calculatedTrillLength);
+  const trillNotes = [mainToneName];
+  for (let i = 0; i < calculatedTrillLength; i++) {
+    trillNotes.push(offToneName, mainToneName);
+  }
+
+  const finalNoteLength = Math.max((Math.random() * maxToneDuration * chordDuration * noteDuration), maxToneDuration * noteDuration);
+  const toneDuration = ((trillNotes.length - 1) * (noteDuration / 2)) + finalNoteLength;
+  
   highlightDetails.push({
     start: t,
     duration: toneDuration
   });
-  synth.triggerAttack(mainToneName, now + t);
-  synth.triggerRelease(mainToneName, now + t + (noteDuration / 2));
-  synth.triggerAttack(offToneName, now + t + (noteDuration / 2));
-  synth.triggerRelease(offToneName, now + t + noteDuration);
-  synth.triggerAttack(mainToneName, now + t + noteDuration);
-  synth.triggerRelease(mainToneName, now + t + toneDuration);
+
+  for (let i = 0; i < trillNotes.length; i++) {
+    synth.triggerAttack(trillNotes[i], now + t + (i * noteDuration / 2));
+    if (i === trillNotes.length - 1)
+      synth.triggerRelease(trillNotes[i], now + t + (i * noteDuration / 2) + finalNoteLength);
+    else
+      synth.triggerRelease(trillNotes[i], now + t + ((i + 1) * noteDuration / 2));
+  }
 }
 
 function PageBardPlayScaleRunUp(composition, j, scaleNotesAsAllNotesIndices, synth, now, t, highlightDetails, noteDuration) {
@@ -584,12 +618,11 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         PageBardLog.verbose('with image:', message.image);
         PageBardLog.verbose('with stopImage:', message.stopImage);
 
-        PageBardLog.verbose('with keep short:', message.keepShort);
         PageBardLog.verbose('with scale:', message.scale);
         PageBardLog.verbose('with chord progression:', message.progression);
-        PageBardLog.verbose('with randomization:', message.randomization);
         PageBardLog.verbose('with rests:', message.rests);
         PageBardLog.verbose('with rest duration:', message.restDuration);
+        PageBardLog.verbose('with randomization:', message.randomization);
         PageBardLog.verbose('with trills:', message.trills);
         PageBardLog.verbose('with scale runs:', message.scaleRuns);
         PageBardLog.verbose('with arpeggiation:', message.arpeggiation);
@@ -598,20 +631,33 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         PageBardLog.verbose('with oscillator:', message.oscillator);
         PageBardLog.verbose('with note duration:', message.noteDuration);
         PageBardLog.verbose('with chord duration:', message.chordDuration);
+        
+        PageBardLog.verbose('with keep short:', message.keepShort);
         PageBardLog.verbose('with highlighting:', message.highlighting);
 
+        PageBardLog.verbose('== advanced controls ==');
+        PageBardLog.verbose('with trill length:', message.trillLength);
+
         // these vars just for logging/debugging
-        let scaleNoteCount = 0, chordToneCount = 0, restCount = 0, trillCount = 0, scaleRunCount = 0, arpeggioCount = 0, cumulativeRestCount = 0;
+        let
+          scaleNoteCount = 0,
+          chordToneCount = 0,
+          restCount = 0,
+          trillCount = 0,
+          scaleRunCount = 0,
+          arpeggioCount = 0,
+          cumulativeRestCount = 0;
         
         const warningText = [];
 
         if (!message.image) warningText.push('No play image found!');
         if (!message.stopImage) warningText.push('No stop image found!');
+
         if (!message.scale) warningText.push('No scale found!');
         if (!message.progression) warningText.push('No chord progression found!');
-        if (!message.randomization) warningText.push('No randomization factor found!');
         if (!message.rests) warningText.push('No rests factor found!');
         if (!message.restDuration) warningText.push('No rest duration found!');
+        if (!message.randomization) warningText.push('No randomization factor found!');
         if (!message.trills) warningText.push('No trills factor found!');
         if (!message.scaleRuns) warningText.push('No scale runs factor found!');
         if (!message.arpeggiation) warningText.push('No arpeggiation factor found!');
@@ -620,6 +666,8 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         if (!message.oscillator) warningText.push('No oscillator found!');
         if (!message.noteDuration) warningText.push('No note duration found!');
         if (!message.chordDuration) warningText.push('No chord duration found!');
+        // advanced
+        if (!message.trillLength) warningText.push('No trill length found!');
       
         if (warningText.length > 0) {
           alert(['Page Bard command message error:', ...warningText].join(' '));
@@ -654,6 +702,8 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
 
         const chordDuration = PageBardGetChordDuration(message.chordDuration);
         const noteDuration = PageBardGetNoteDuration(message.noteDuration);
+
+        const trillLength = PageBardGetTrillLength(message.trillLength);
     
         PageBardLog.verbose(`Total frequency factor: ${frequencyFactor}
           Rest threshold: ${restsThreshold}
@@ -689,12 +739,11 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
         infoPane.style.zIndex = "2147483646";
         infoPane.innerHTML = `<div style="font-size: 2em">Page Bard</div><br />
           <div style="font-size: 1.2em; margin-bottom: 0.5em">Song properties used to write this page's song:</div>
-          Short song compositions: ${message.keepShort}<br />
           Scale/mode: ${scaleName}<br />
-          Chord progression: ${progression.name}<br />
-          Randomization/frequency factor: ${message.randomization}<br />
+          Chord progression: ${progression.name} ${progression.progression}<br />
           Rest frequency: ${message.rests}<br />
           Maximum rest duration: ${message.restDuration}<br />
+          Randomization/frequency factor: ${message.randomization}<br />
           Trill frequency: ${message.trills}<br />
           Scale run frequency: ${message.scaleRuns}<br />
           Arpeggio frequency: ${message.arpeggiation}<br />
@@ -703,7 +752,12 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
           Oscillator/instrument type: ${oscillator}<br />
           Note duration: ${noteDuration} secords<br />
           Chord duration: ${chordDuration} notes<br />
+          <br />
+          Max trill length: ${trillLength}<br />
+          <br />
+          Short song compositions: ${message.keepShort}<br />
           Element/note source highlighting: ${message.highlighting}<br />
+          <br />
           Seconds elapsed: <span id='elapsed-seconds'>0</span> of <span id='total-seconds'>(tbd)</span>`;
 
         let progBarInterval = undefined;
@@ -886,7 +940,18 @@ function PageBardPlayArpeggiateDown(chordTones, scaleNotesAsAllNotesIndices, syn
               // trill
               if (composition[j] % frequencyFactor < trillsThreshold) {
                 trillCount++;
-                PageBardPlayTrill(scaleNotesAsAllNotesIndices, composition, j, synth, now, t, highlightDetails, noteDuration, chordDuration);
+                PageBardPlayTrill(
+                  scaleNotesAsAllNotesIndices,
+                  composition,
+                  j,
+                  synth,
+                  now,
+                  t,
+                  highlightDetails,
+                  noteDuration,
+                  chordDuration,
+                  trillLength
+                );
                 // t += noteDuration;
                 // j++;
                 continue;
